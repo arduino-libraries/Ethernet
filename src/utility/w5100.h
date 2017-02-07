@@ -206,8 +206,18 @@ private:
 private:
   static uint8_t write(uint16_t _addr, uint8_t _cb, uint8_t _data);
   static uint16_t write(uint16_t addr, uint8_t _cb, const uint8_t *buf, uint16_t len);
-  static uint8_t read(uint16_t addr, uint8_t _cb);
-  static uint16_t read(uint16_t addr, uint8_t _cb, uint8_t *buf, uint16_t len);
+  static inline uint8_t read(uint16_t addr, uint8_t _cb) { return readByte(addr, _cb); }
+  static inline uint16_t read(uint16_t addr, uint8_t _cb, uint8_t *buf, uint16_t len) { return readBlock(addr, _cb, buf, len); }
+
+  static uint8_t (*readByte)(uint16_t addr, uint8_t _cb);
+  static uint8_t W5100_readByte(uint16_t _addr, uint8_t _cb);
+  static uint8_t W5200_readByte(uint16_t _addr, uint8_t _cb);
+  static uint8_t W5500_readByte(uint16_t _addr, uint8_t _cb);
+
+  static uint16_t (*readBlock)(uint16_t addr, uint8_t _cb, uint8_t *buf, uint16_t len);
+  static uint16_t W5100_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len);
+  static uint16_t W5200_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len);
+  static uint16_t W5500_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len);
   
 #define __GP_REGISTER8(name, address)             \
   static inline void write##name(uint8_t _data) { \

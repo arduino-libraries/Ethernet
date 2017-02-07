@@ -43,6 +43,8 @@ void W5x00Class::init(void)
   resetSS();
   if (testW5200[4] == 0x03) {
     chipset = W5x00Chipset::W5200;
+    readByte = W5200_readByte;
+    readBlock = W5200_readBlock;
   } else {
     // Check for W5500
     setSS();
@@ -50,8 +52,12 @@ void W5x00Class::init(void)
     resetSS();
     if (testW5500[3] == 0x04) {
       chipset = W5x00Chipset::W5500;
+      readByte = W5500_readByte;
+      readBlock = W5500_readBlock;
     } else {
       chipset = W5x00Chipset::W5100;
+      readByte = W5100_readByte;
+      readBlock = W5100_readBlock;
     }
   }
   SPI.endTransaction();
@@ -240,64 +246,80 @@ uint16_t W5x00Class::write(uint16_t _addr, uint8_t _cb, const uint8_t *_buf, uin
   return _len;
 }
 
-uint8_t W5x00Class::read(uint16_t _addr, uint8_t _cb)
-{
+uint8_t (*W5x00Class::readByte)(uint16_t _addr, uint8_t _cb);
+
+uint8_t W5x00Class::W5100_readByte(uint16_t _addr, uint8_t _cb) {
   uint8_t res;
   setSS();
-  if (chipset == W5x00Chipset::W5100) {
-    SPI.transfer(0x0F);
-    SPI.transfer(_addr >> 8);
-    SPI.transfer(_addr & 0xFF);
-    res = SPI.transfer(0);
-  } else if (chipset == W5x00Chipset::W5200) {
-    SPI.transfer(_addr >> 8);
-    SPI.transfer(_addr & 0xFF);
-    SPI.transfer(0x00);
-    SPI.transfer(0x01);
-    res = SPI.transfer(0);
-  } else {
-    SPI.transfer(_addr >> 8);
-    SPI.transfer(_addr & 0xFF);
-    SPI.transfer(_cb);
-    res = SPI.transfer(0);
-  }
+  SPI.transfer(0x0F);
+  SPI.transfer(_addr >> 8);
+  SPI.transfer(_addr & 0xFF);
+  res = SPI.transfer(0);
   resetSS();
   return res;
 }
 
-uint16_t W5x00Class::read(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len)
-{
-  if (chipset == W5x00Chipset::W5100) {
-    for (uint16_t i=0; i<_len; i++)
-    {
-      setSS();
-      SPI.transfer(0x0F);
-      SPI.transfer(_addr >> 8);
-      SPI.transfer(_addr & 0xFF);
-      _addr++;
-      _buf[i] = SPI.transfer(0);
-      resetSS();
-    }
-  } else if (chipset == W5x00Chipset::W5200) {
+uint8_t W5x00Class::W5200_readByte(uint16_t _addr, uint8_t _cb) {
+  uint8_t res;
+  setSS();
+  SPI.transfer(_addr >> 8);
+  SPI.transfer(_addr & 0xFF);
+  SPI.transfer(0x00);
+  SPI.transfer(0x01);
+  res = SPI.transfer(0);
+  resetSS();
+  return res;
+}
+
+uint8_t W5x00Class::W5500_readByte(uint16_t _addr, uint8_t _cb) {
+  uint8_t res;
+  setSS();
+  SPI.transfer(_addr >> 8);
+  SPI.transfer(_addr & 0xFF);
+  SPI.transfer(_cb);
+  res = SPI.transfer(0);
+  resetSS();
+  return res;
+}
+
+uint16_t (*W5x00Class::readBlock)(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len);
+
+uint16_t W5x00Class::W5100_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len) {
+  for (uint16_t i=0; i<_len; i++)
+  {
     setSS();
+    SPI.transfer(0x0F);
     SPI.transfer(_addr >> 8);
     SPI.transfer(_addr & 0xFF);
-    SPI.transfer((_len & 0x7F00) >> 8);
-    SPI.transfer(_len & 0xFF);
-    for (uint16_t i=0; i<_len; i++){
-      _buf[i] = SPI.transfer(0);
-    }
-    resetSS();
-  } else {
-    setSS();
-    SPI.transfer(_addr >> 8);
-    SPI.transfer(_addr & 0xFF);
-    SPI.transfer(_cb);
-    for (uint16_t i=0; i<_len; i++){
-      _buf[i] = SPI.transfer(0);
-    }
+    _addr++;
+    _buf[i] = SPI.transfer(0);
     resetSS();
   }
+  return _len;
+}
+
+uint16_t W5x00Class::W5200_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len) {
+  setSS();
+  SPI.transfer(_addr >> 8);
+  SPI.transfer(_addr & 0xFF);
+  SPI.transfer((_len & 0x7F00) >> 8);
+  SPI.transfer(_len & 0xFF);
+  for (uint16_t i=0; i<_len; i++){
+    _buf[i] = SPI.transfer(0);
+  }
+  resetSS();
+  return _len;
+}
+
+uint16_t W5x00Class::W5500_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len) {
+  setSS();
+  SPI.transfer(_addr >> 8);
+  SPI.transfer(_addr & 0xFF);
+  SPI.transfer(_cb);
+  for (uint16_t i=0; i<_len; i++){
+    _buf[i] = SPI.transfer(0);
+  }
+  resetSS();
   return _len;
 }
 
