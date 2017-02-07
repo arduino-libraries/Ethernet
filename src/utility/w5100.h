@@ -343,14 +343,14 @@ private:
   // W5100 supports up to 14Mhz
 #if !defined(SPI_HAS_EXTENDED_CS_PIN_HANDLING)
   #define SPI_ETHERNET_SETTINGS SPISettings(14000000, MSBFIRST, SPI_MODE0)
-  #if defined(__ARDUINO_ARC__)
-    inline static void initSS()  { pinMode(ETHERNET_SHIELD_SPI_CS, OUTPUT);    }
-    inline static void setSS()   { digitalWrite(ETHERNET_SHIELD_SPI_CS, LOW);  }
-    inline static void resetSS() { digitalWrite(ETHERNET_SHIELD_SPI_CS, HIGH); }
-  #else
+  #if defined(ARDUINO_ARCH_AVR)
     inline static void initSS()  { pinMode(ETHERNET_SHIELD_SPI_CS, OUTPUT); }
     inline static void setSS()   { *portOutputRegister(digitalPinToPort(ETHERNET_SHIELD_SPI_CS)) &= ~digitalPinToBitMask(ETHERNET_SHIELD_SPI_CS); }
     inline static void resetSS() { *portOutputRegister(digitalPinToPort(ETHERNET_SHIELD_SPI_CS)) |=  digitalPinToBitMask(ETHERNET_SHIELD_SPI_CS); }
+  #else
+    inline static void initSS()  { pinMode(ETHERNET_SHIELD_SPI_CS, OUTPUT);    }
+    inline static void setSS()   { digitalWrite(ETHERNET_SHIELD_SPI_CS, LOW);  }
+    inline static void resetSS() { digitalWrite(ETHERNET_SHIELD_SPI_CS, HIGH); }
   #endif
 #else
   #define SPI_ETHERNET_SETTINGS ETHERNET_SHIELD_SPI_CS,SPISettings(14000000, MSBFIRST, SPI_MODE0)
