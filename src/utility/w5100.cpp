@@ -36,7 +36,7 @@ void W5100Class::init(void)
   SPI.setDataMode(ETHERNET_SHIELD_SPI_CS, SPI_MODE0);
 #endif
   SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-  writeMR(1<<RST);
+  writeMR(RST); 
   writeTMSR(0x55);
   writeRMSR(0x55);
   SPI.endTransaction();
