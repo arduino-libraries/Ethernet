@@ -50,6 +50,7 @@ void setup() {
   Ethernet.hostName(SetHostName);
  // start the Ethernet connection:
   if (Ethernet.begin(mac) == 0) {
+    Serial.println();    
     Serial.println("Failed to configure Ethernet using DHCP");
     // no point in carrying on, so do nothing forevermore:
     for (;;)
