@@ -30,7 +30,9 @@ IPAddress ip(192, 168, 1, 177);
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
 // (port 80 is default for HTTP):
-EthernetServer server(80);
+//EthernetServer server(80);
+// User can now posticipate the port declaration in void setup()
+EthernetServer server();
 
 void setup() {
   // Open serial communications and wait for port to open:
@@ -42,7 +44,9 @@ void setup() {
 
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
-  server.begin();
+  //server.begin();
+  //The tcp port used by server now can be a result of a eeprom.read (for example) or a normal int
+  server.begin(80);
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
 }
