@@ -19,6 +19,8 @@ uint8_t W5x00Class::chipset = W5x00Chipset::W5100;
 uint8_t W5x00Class::sockets = 4;
 uint16_t W5x00Class::CH_BASE = 0;
 
+uint8_t W5x00Class::ss_pin = ETHERNET_SHIELD_SPI_CS;
+
 #define TX_RX_MAX_BUF_SIZE 2048
 #define TX_BUF 0x1100
 #define RX_BUF (TX_BUF + TX_RX_MAX_BUF_SIZE)

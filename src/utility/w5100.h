@@ -349,17 +349,21 @@ private:
   uint16_t SBASE[8]; // Tx buffer base address
   uint16_t RBASE[8]; // Rx buffer base address
 
+public:
+  static void setSSPin(uint8_t pin) { ss_pin = pin; }
 private:
+  static uint8_t ss_pin;
+
   // W5100 supports up to 14Mhz
   #define SPI_ETHERNET_SETTINGS SPISettings(14000000, MSBFIRST, SPI_MODE0)
   #if defined(ARDUINO_ARCH_AVR)
-    inline static void initSS()  { pinMode(ETHERNET_SHIELD_SPI_CS, OUTPUT); }
-    inline static void setSS()   { *portOutputRegister(digitalPinToPort(ETHERNET_SHIELD_SPI_CS)) &= ~digitalPinToBitMask(ETHERNET_SHIELD_SPI_CS); }
-    inline static void resetSS() { *portOutputRegister(digitalPinToPort(ETHERNET_SHIELD_SPI_CS)) |=  digitalPinToBitMask(ETHERNET_SHIELD_SPI_CS); }
+    inline static void initSS()  { pinMode(ss_pin, OUTPUT); }
+    inline static void setSS()   { *portOutputRegister(digitalPinToPort(ss_pin)) &= ~digitalPinToBitMask(ss_pin); }
+    inline static void resetSS() { *portOutputRegister(digitalPinToPort(ss_pin)) |=  digitalPinToBitMask(ss_pin); }
   #else
-    inline static void initSS()  { pinMode(ETHERNET_SHIELD_SPI_CS, OUTPUT);    }
-    inline static void setSS()   { digitalWrite(ETHERNET_SHIELD_SPI_CS, LOW);  }
-    inline static void resetSS() { digitalWrite(ETHERNET_SHIELD_SPI_CS, HIGH); }
+    inline static void initSS()  { pinMode(ss_pin, OUTPUT);    }
+    inline static void setSS()   { digitalWrite(ss_pin, LOW);  }
+    inline static void resetSS() { digitalWrite(ss_pin, HIGH); }
   #endif
 };
 

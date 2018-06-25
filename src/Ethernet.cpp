@@ -74,6 +74,11 @@ void EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server
   _dnsServerAddress = dns_server;
 }
 
+void EthernetClass::init(uint8_t sspin)
+{
+  W5100.setSSPin(sspin);
+}
+
 int EthernetClass::maintain(){
   int rc = DHCP_CHECK_NONE;
   if(_dhcp != NULL){
