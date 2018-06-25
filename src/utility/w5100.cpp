@@ -250,7 +250,7 @@ uint16_t W5x00Class::write(uint16_t _addr, uint8_t _cb, const uint8_t *_buf, uin
 
 uint8_t (*W5x00Class::readByte)(uint16_t _addr, uint8_t _cb);
 
-uint8_t W5x00Class::W5100_readByte(uint16_t _addr, uint8_t _cb) {
+uint8_t W5x00Class::W5100_readByte(uint16_t _addr, uint8_t /* _cb */) {
   uint8_t res;
   setSS();
   SPI.transfer(0x0F);
@@ -261,7 +261,7 @@ uint8_t W5x00Class::W5100_readByte(uint16_t _addr, uint8_t _cb) {
   return res;
 }
 
-uint8_t W5x00Class::W5200_readByte(uint16_t _addr, uint8_t _cb) {
+uint8_t W5x00Class::W5200_readByte(uint16_t _addr, uint8_t /* _cb */) {
   uint8_t res;
   setSS();
   SPI.transfer(_addr >> 8);
@@ -286,7 +286,7 @@ uint8_t W5x00Class::W5500_readByte(uint16_t _addr, uint8_t _cb) {
 
 uint16_t (*W5x00Class::readBlock)(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len);
 
-uint16_t W5x00Class::W5100_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len) {
+uint16_t W5x00Class::W5100_readBlock(uint16_t _addr, uint8_t /* _cb */, uint8_t *_buf, uint16_t _len) {
   for (uint16_t i=0; i<_len; i++)
   {
     setSS();
@@ -300,7 +300,7 @@ uint16_t W5x00Class::W5100_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf,
   return _len;
 }
 
-uint16_t W5x00Class::W5200_readBlock(uint16_t _addr, uint8_t _cb, uint8_t *_buf, uint16_t _len) {
+uint16_t W5x00Class::W5200_readBlock(uint16_t _addr, uint8_t /* _cb */, uint8_t *_buf, uint16_t _len) {
   setSS();
   SPI.transfer(_addr >> 8);
   SPI.transfer(_addr & 0xFF);
