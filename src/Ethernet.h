@@ -28,10 +28,17 @@ public:
   void init(uint8_t sspin = 10);
   int maintain();
 
+  void MACAddress(uint8_t *mac_address);
   IPAddress localIP();
   IPAddress subnetMask();
   IPAddress gatewayIP();
   IPAddress dnsServerIP();
+
+  void setMACAddress(const uint8_t *mac_address);
+  void setLocalIP(const IPAddress local_ip);
+  void setSubnetMask(const IPAddress subnet);
+  void setGatewayIP(const IPAddress gateway);
+  void setDnsServerIP(const IPAddress dns_server);
 
   friend class EthernetClient;
   friend class EthernetServer;

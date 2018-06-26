@@ -106,6 +106,18 @@ int EthernetClass::maintain(){
   return rc;
 }
 
+void EthernetClass::setMACAddress(const uint8_t *mac_address) {
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  W5100.setMACAddress(mac_address);
+  SPI.endTransaction();
+}
+
+void EthernetClass::MACAddress(uint8_t *mac_address) {
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  W5100.getMACAddress(mac_address);
+  SPI.endTransaction();
+}
+
 IPAddress EthernetClass::localIP()
 {
   IPAddress ret;
@@ -113,6 +125,13 @@ IPAddress EthernetClass::localIP()
   W5100.getIPAddress(ret.raw_address());
   SPI.endTransaction();
   return ret;
+}
+
+void EthernetClass::setLocalIP(const IPAddress local_ip) {
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  IPAddress ip = local_ip;
+  W5100.setIPAddress(ip.raw_address());
+  SPI.endTransaction();
 }
 
 IPAddress EthernetClass::subnetMask()
@@ -124,6 +143,13 @@ IPAddress EthernetClass::subnetMask()
   return ret;
 }
 
+void EthernetClass::setSubnetMask(const IPAddress subnet) {
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  IPAddress ip = subnet;
+  W5100.setSubnetMask(ip.raw_address());
+  SPI.endTransaction();
+}
+
 IPAddress EthernetClass::gatewayIP()
 {
   IPAddress ret;
@@ -133,9 +159,20 @@ IPAddress EthernetClass::gatewayIP()
   return ret;
 }
 
+void EthernetClass::setGatewayIP(const IPAddress gateway) {
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  IPAddress ip = gateway;
+  W5100.setGatewayIp(ip.raw_address());
+  SPI.endTransaction();
+}
+
 IPAddress EthernetClass::dnsServerIP()
 {
   return _dnsServerAddress;
+}
+
+void EthernetClass::setDnsServerIP(const IPAddress dns_server) {
+  _dnsServerAddress = dns_server;
 }
 
 EthernetClass Ethernet;
