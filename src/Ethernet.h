@@ -17,9 +17,6 @@ enum EthernetLinkStatus {
 };
 
 class EthernetClass {
-private:
-  IPAddress _dnsServerAddress;
-  DhcpClass* _dhcp;
 public:
   static uint8_t _state[MAX_SOCK_NUM];
   static uint16_t _server_port[MAX_SOCK_NUM];
@@ -50,6 +47,11 @@ public:
 
   friend class EthernetClient;
   friend class EthernetServer;
+
+private:
+  IPAddress _dnsServerAddress;
+  DhcpClass* _dhcp;
+  bool _W5100initialized = false;
 };
 
 extern EthernetClass Ethernet;

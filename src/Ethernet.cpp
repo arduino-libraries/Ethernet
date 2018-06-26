@@ -13,9 +13,9 @@ int EthernetClass::begin(uint8_t *mac_address, unsigned long timeout, unsigned l
   static DhcpClass s_dhcp;
   _dhcp = &s_dhcp;
 
-
   // Initialise the basic info
   W5100.init();
+  _W5100initialized = true;
   SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
   W5100.setMACAddress(mac_address);
   W5100.setIPAddress(IPAddress(0,0,0,0).raw_address());
@@ -65,6 +65,7 @@ void EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dn
 void EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet)
 {
   W5100.init();
+  _W5100initialized = true;
   SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
   W5100.setMACAddress(mac);
   W5100.setIPAddress(local_ip.raw_address());
@@ -108,6 +109,10 @@ int EthernetClass::maintain(){
 
 EthernetLinkStatus EthernetClass::linkStatus()
 {
+  if (!_W5100initialized) {
+    W5100.init();
+    _W5100initialized = true;
+  }
   SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
   auto link = W5100.getLinkStatus();
   SPI.endTransaction();
