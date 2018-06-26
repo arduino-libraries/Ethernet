@@ -175,17 +175,17 @@ public:
    */
   void recv_data_processing(SOCKET s, uint8_t *data, uint16_t len, uint8_t peek = 0);
 
-  inline void setGatewayIp(uint8_t *_addr);
-  inline void getGatewayIp(uint8_t *_addr);
+  inline void setGatewayIp(const uint8_t *addr)  { writeGAR(addr); }
+  inline void getGatewayIp(uint8_t *addr)        { readGAR(addr);  }
 
-  inline void setSubnetMask(uint8_t *_addr);
-  inline void getSubnetMask(uint8_t *_addr);
+  inline void setSubnetMask(const uint8_t *addr) { writeSUBR(addr); }
+  inline void getSubnetMask(uint8_t *addr)       { readSUBR(addr);  }
 
-  inline void setMACAddress(uint8_t * addr);
-  inline void getMACAddress(uint8_t * addr);
+  inline void setMACAddress(const uint8_t *addr) { writeSHAR(addr); }
+  inline void getMACAddress(uint8_t *addr)       { readSHAR(addr);  }
 
-  inline void setIPAddress(uint8_t * addr);
-  inline void getIPAddress(uint8_t * addr);
+  inline void setIPAddress(const uint8_t *addr)  { writeSIPR(addr); }
+  inline void getIPAddress(uint8_t *addr)        { readSIPR(addr);  }
 
   inline void setRetransmissionTime(uint16_t timeout);
   inline void setRetransmissionCount(uint8_t _retry);
@@ -236,12 +236,12 @@ private:
     res = (res << 8) + read(address + 1, 0x00);   \
     return res;                                   \
   }
-#define __GP_REGISTER_N(name, address, size)      \
-  static uint16_t write##name(uint8_t *_buff) {   \
-    return write(address, 0x04, _buff, size);     \
-  }                                               \
-  static uint16_t read##name(uint8_t *_buff) {    \
-    return read(address, 0x00, _buff, size);      \
+#define __GP_REGISTER_N(name, address, size)          \
+  static uint16_t write##name(const uint8_t *_buff) { \
+    return write(address, 0x04, _buff, size);         \
+  }                                                   \
+  static uint16_t read##name(uint8_t *_buff) {        \
+    return read(address, 0x00, _buff, size);          \
   }
 
 public:
@@ -395,38 +395,6 @@ uint16_t W5x00Class::writeSn(SOCKET _s, uint16_t _addr, uint8_t *_buf, uint16_t 
     return write(CH_BASE + _s * CH_SIZE + _addr, 0x00, _buf, _len);
   else
     return write(_addr, (_s<<5) + 0x0C, _buf, _len);
-}
-
-void W5x00Class::getGatewayIp(uint8_t *_addr) {
-  readGAR(_addr);
-}
-
-void W5x00Class::setGatewayIp(uint8_t *_addr) {
-  writeGAR(_addr);
-}
-
-void W5x00Class::getSubnetMask(uint8_t *_addr) {
-  readSUBR(_addr);
-}
-
-void W5x00Class::setSubnetMask(uint8_t *_addr) {
-  writeSUBR(_addr);
-}
-
-void W5x00Class::getMACAddress(uint8_t *_addr) {
-  readSHAR(_addr);
-}
-
-void W5x00Class::setMACAddress(uint8_t *_addr) {
-  writeSHAR(_addr);
-}
-
-void W5x00Class::getIPAddress(uint8_t *_addr) {
-  readSIPR(_addr);
-}
-
-void W5x00Class::setIPAddress(uint8_t *_addr) {
-  writeSIPR(_addr);
 }
 
 void W5x00Class::setRetransmissionTime(uint16_t _timeout) {
