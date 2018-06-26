@@ -10,6 +10,12 @@
 
 #define MAX_SOCK_NUM 4
 
+enum EthernetLinkStatus {
+  Unknown,
+  LinkON,
+  LinkOFF
+};
+
 class EthernetClass {
 private:
   IPAddress _dnsServerAddress;
@@ -27,6 +33,8 @@ public:
   void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
   void init(uint8_t sspin = 10);
   int maintain();
+
+  EthernetLinkStatus linkStatus();
 
   void MACAddress(uint8_t *mac_address);
   IPAddress localIP();

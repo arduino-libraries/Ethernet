@@ -132,6 +132,12 @@ public:
   static const uint8_t W5500 = 2;
 };
 
+enum W5x00Linkstatus {
+  UNKNOWN,
+  LINK_ON,
+  LINK_OFF
+};
+
 class W5x00Class {
 
 public:
@@ -196,6 +202,8 @@ public:
   uint16_t getRXReceivedSize(SOCKET s);
   
   inline uint8_t getMaxSockets() { return sockets; }
+
+  inline W5x00Linkstatus getLinkStatus();
 
 private:
   static uint8_t chipset;
@@ -426,4 +434,14 @@ void W5x00Class::setRetransmissionCount(uint8_t _retry) {
     writeRCR_W5500(_retry);
 }
 
+W5x00Linkstatus W5x00Class::getLinkStatus() {
+  switch (chipset) {
+    case W5x00Chipset::W5500:
+      return (readPHYCFGR_W5500() & 0x01) ? LINK_ON : LINK_OFF;
+    case W5x00Chipset::W5200:
+      return (readPSTATUS_W5200() & 0x20) ? LINK_ON : LINK_OFF;
+    default:
+      return UNKNOWN;
+  }
+}
 #endif

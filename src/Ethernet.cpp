@@ -106,6 +106,20 @@ int EthernetClass::maintain(){
   return rc;
 }
 
+EthernetLinkStatus EthernetClass::linkStatus()
+{
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  auto link = W5100.getLinkStatus();
+  SPI.endTransaction();
+
+  switch (link) {
+    case UNKNOWN:  return Unknown;
+    case LINK_ON:  return LinkON;
+    case LINK_OFF: return LinkOFF;
+    default:       return Unknown;
+  }
+}
+
 void EthernetClass::setMACAddress(const uint8_t *mac_address) {
   SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
   W5100.setMACAddress(mac_address);
