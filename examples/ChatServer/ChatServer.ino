@@ -23,10 +23,9 @@
 // The IP address will be dependent on your local network.
 // gateway and subnet are optional:
 byte mac[] = {
-  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
-};
+  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip(192, 168, 1, 177);
-IPAddress myDns(192,168,1, 1);
+IPAddress myDns(192, 168, 1, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 0, 0);
 
@@ -36,13 +35,21 @@ EthernetServer server(23);
 boolean alreadyConnected = false; // whether or not the client was connected previously
 
 void setup() {
+  // You can use Ethernet.init(pin) to configure the CS pin
+  //Ethernet.init(10);  // Most Arduino shields
+  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(0);   // Teensy 2.0
+  //Ethernet.init(20);  // Teensy++ 2.0
+  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+
   // initialize the ethernet device
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
   // start listening for clients
   server.begin();
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
-  while (!Serial) {
+   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 

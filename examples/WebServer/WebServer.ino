@@ -14,7 +14,7 @@
  by Tom Igoe
  modified 02 Sept 2015
  by Arturo Guadalupi
-
+ 
  */
 
 #include <SPI.h>
@@ -33,6 +33,14 @@ IPAddress ip(192, 168, 1, 177);
 EthernetServer server(80);
 
 void setup() {
+  // You can use Ethernet.init(pin) to configure the CS pin
+  //Ethernet.init(10);  // Most Arduino shields
+  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(0);   // Teensy 2.0
+  //Ethernet.init(20);  // Teensy++ 2.0
+  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {

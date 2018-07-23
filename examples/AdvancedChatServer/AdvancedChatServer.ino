@@ -40,6 +40,14 @@ EthernetServer server(23);
 EthernetClient clients[4];
 
 void setup() {
+  // You can use Ethernet.init(pin) to configure the CS pin
+  //Ethernet.init(10);  // Most Arduino shields
+  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(0);   // Teensy 2.0
+  //Ethernet.init(20);  // Teensy++ 2.0
+  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+
   // initialize the Ethernet device
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
   // start listening for clients
@@ -63,7 +71,7 @@ void loop() {
   if (client) {
 
     boolean newClient = true;
-    for (byte i = 0; i < 4; i++) {
+    for (byte i=0; i < 4; i++) {
       //check whether this client refers to the same socket as one of the existing instances:
       if (clients[i] == client) {
         newClient = false;
@@ -73,7 +81,7 @@ void loop() {
 
     if (newClient) {
       //check which of the existing clients can be overridden:
-      for (byte i = 0; i < 4; i++) {
+      for (byte i=0; i < 4; i++) {
         if (!clients[i] && clients[i] != client) {
           clients[i] = client;
           // clear out the input buffer:
@@ -91,7 +99,7 @@ void loop() {
       // read the bytes incoming from the client:
       char thisChar = client.read();
       // echo the bytes back to all other connected clients:
-      for (byte i = 0; i < 4; i++) {
+      for (byte i=0; i < 4; i++) {
         if (clients[i] && (clients[i] != client)) {
           clients[i].write(thisChar);
         }
@@ -100,7 +108,7 @@ void loop() {
       Serial.write(thisChar);
     }
   }
-  for (byte i = 0; i < 4; i++) {
+  for (byte i=0; i < 4 ; i++) {
     if (!(clients[i].connected())) {
       // client.stop() invalidates the internal socket-descriptor, so next use of == will allways return false;
       clients[i].stop();
