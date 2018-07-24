@@ -64,16 +64,10 @@ void setup() {
   }
   // print your local IP address:
   Serial.print("My IP address: ");
-  ip = Ethernet.localIP();
-  for (byte thisByte = 0; thisByte < 4; thisByte++) {
-    // print the value of each byte of the IP address:
-    Serial.print(ip[thisByte], DEC);
-    Serial.print(".");
-  }
-  Serial.println();
+  Serial.println(Ethernet.localIP());
+
   // start listening for clients
   server.begin();
-
 }
 
 void loop() {
