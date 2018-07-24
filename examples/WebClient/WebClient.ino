@@ -34,8 +34,10 @@ IPAddress myDns(192, 168, 0, 1);
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
 
+// Variables to measure the speed
 unsigned long beginMicros, endMicros;
-unsigned long byteCount=0;
+unsigned long byteCount = 0;
+bool printWebData = true;  // set to false for better speed measurement
 
 void setup() {
   // You can use Ethernet.init(pin) to configure the CS pin
@@ -93,7 +95,9 @@ void loop() {
     byte buffer[80];
     if (len > 80) len = 80;
     client.read(buffer, len);
-    Serial.write(buffer, len); // show in the serial monitor (slows some boards)
+    if (printWebData) {
+      Serial.write(buffer, len); // show in the serial monitor (slows some boards)
+    }
     byteCount = byteCount + len;
   }
 
