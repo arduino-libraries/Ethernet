@@ -54,13 +54,19 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-
   // start Ethernet and UDP
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
+    // Check for Ethernet hardware present
+    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    } else if (Ethernet.linkStatus() == LinkOFF) {
+      Serial.println("Ethernet cable is not connected.");
+    }
     // no point in carrying on, so do nothing forevermore:
-    for (;;)
-      ;
+    while (true) {
+      delay(1);
+    }
   }
   Udp.begin(localPort);
 }

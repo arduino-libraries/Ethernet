@@ -36,7 +36,6 @@ void setup() {
 
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
-  // this check is only needed on the Leonardo:
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -45,12 +44,19 @@ void setup() {
   Serial.println("Initialize Ethernet with DHCP:");
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
+    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    } else if (Ethernet.linkStatus() == LinkOFF) {
+      Serial.println("Ethernet cable is not connected.");
+    }
     // no point in carrying on, so do nothing forevermore:
-    for (;;)
-      ;
+    while (true) {
+      delay(1);
+    }
   }
   // print your local IP address:
-  printIPAddress();
+  Serial.print("My IP address: ");
+  Serial.println(Ethernet.localIP());
 }
 
 void loop() {
@@ -64,7 +70,8 @@ void loop() {
       //renewed success
       Serial.println("Renewed success");
       //print your local IP address:
-      printIPAddress();
+      Serial.print("My IP address: ");
+      Serial.println(Ethernet.localIP());
       break;
 
     case 3:
@@ -76,7 +83,8 @@ void loop() {
       //rebind success
       Serial.println("Rebind success");
       //print your local IP address:
-      printIPAddress();
+      Serial.print("My IP address: ");
+      Serial.println(Ethernet.localIP());
       break;
 
     default:
@@ -85,7 +93,3 @@ void loop() {
   }
 }
 
-void printIPAddress() {
-  Serial.print("My IP address: ");
-  Serial.println(Ethernet.localIP());
-}
