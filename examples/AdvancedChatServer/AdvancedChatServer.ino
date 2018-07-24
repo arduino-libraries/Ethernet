@@ -101,7 +101,7 @@ void loop() {
       int count = clients[i].read(buffer, 80);
       // write the bytes to all other connected clients
       for (byte j=0; j < 8; j++) {
-        if (j != i && clients[j]) {
+        if (j != i && clients[j].connected()) {
           clients[j].write(buffer, count);
         }
       }
