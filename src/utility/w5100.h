@@ -45,7 +45,7 @@ typedef uint8_t SOCKET;
 class SnMR {
 public:
   static const uint8_t CLOSE  = 0x00;
-  static const uint8_t TCP    = 0x01;
+  static const uint8_t TCP    = 0x21;
   static const uint8_t UDP    = 0x02;
   static const uint8_t IPRAW  = 0x03;
   static const uint8_t MACRAW = 0x04;
