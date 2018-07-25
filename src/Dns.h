@@ -26,7 +26,7 @@ public:
 	    @result 1 if aIPAddrString was successfully converted to an IP address,
 	            else error code
 	*/
-	int getHostByName(const char* aHostname, IPAddress& aResult);
+	int getHostByName(const char* aHostname, IPAddress& aResult, uint16_t timeout=5000);
 
 protected:
 	uint16_t BuildRequest(const char* aName);
