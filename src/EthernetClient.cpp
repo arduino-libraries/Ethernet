@@ -92,6 +92,12 @@ int EthernetClient::available()
 {
 	if (sockindex >= MAX_SOCK_NUM) return 0;
 	return Ethernet.socketRecvAvailable(sockindex);
+	// TODO: do the Wiznet chips automatically retransmit TCP ACK
+	// packets if they are lost by the network?  Someday this should
+	// be checked by a man-in-the-middle test which discards certain
+	// packets.  If ACKs aren't resent, we would need to check for
+	// returning 0 here and after a timeout do another Sock_RECV
+	// command to cause the Wiznet chip to resend the ACK packet.
 }
 
 int EthernetClient::read(uint8_t *buf, size_t size)
