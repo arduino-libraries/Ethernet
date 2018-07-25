@@ -496,20 +496,20 @@ uint16_t EthernetClass::socketBufferData(uint8_t s, uint16_t offset, const uint8
 	return ret;
 }
 
-int EthernetClass::socketStartUDP(uint8_t s, uint8_t* addr, uint16_t port)
+bool EthernetClass::socketStartUDP(uint8_t s, uint8_t* addr, uint16_t port)
 {
 	if ( ((addr[0] == 0x00) && (addr[1] == 0x00) && (addr[2] == 0x00) && (addr[3] == 0x00)) ||
 	  ((port == 0x00)) ) {
-		return 0;
+		return false;
 	}
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	W5100.writeSnDIPR(s, addr);
 	W5100.writeSnDPORT(s, port);
 	SPI.endTransaction();
-	return 1;
+	return true;
 }
 
-int EthernetClass::socketSendUDP(uint8_t s)
+bool EthernetClass::socketSendUDP(uint8_t s)
 {
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	W5100.execCmdSn(s, Sock_SEND);
@@ -521,7 +521,7 @@ int EthernetClass::socketSendUDP(uint8_t s)
 			W5100.writeSnIR(s, (SnIR::SEND_OK|SnIR::TIMEOUT));
 			SPI.endTransaction();
 			//Serial.printf("sendUDP timeout\n");
-			return 0;
+			return false;
 		}
 		SPI.endTransaction();
 		yield();
@@ -534,6 +534,6 @@ int EthernetClass::socketSendUDP(uint8_t s)
 
 	//Serial.printf("sendUDP ok\n");
 	/* Sent ok */
-	return 1;
+	return true;
 }
 

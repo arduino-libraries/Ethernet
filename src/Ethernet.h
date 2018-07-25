@@ -130,16 +130,16 @@ private:
 	static uint8_t socketPeek(uint8_t s);
 	// sets up a UDP datagram, the data for which will be provided by one
 	// or more calls to bufferData and then finally sent with sendUDP.
-	// return 1 if the datagram was successfully set up, or 0 if there was an error
-	static int socketStartUDP(uint8_t s, uint8_t* addr, uint16_t port);
+	// return true if the datagram was successfully set up, or false if there was an error
+	static bool socketStartUDP(uint8_t s, uint8_t* addr, uint16_t port);
 	// copy up to len bytes of data from buf into a UDP datagram to be
 	// sent later by sendUDP.  Allows datagrams to be built up from a series of bufferData calls.
 	// return Number of bytes successfully buffered
 	static uint16_t socketBufferData(uint8_t s, uint16_t offset, const uint8_t* buf, uint16_t len);
 	// Send a UDP datagram built up from a sequence of startUDP followed by one or more
 	// calls to bufferData.
-	// return 1 if the datagram was successfully sent, or 0 if there was an error
-	static int socketSendUDP(uint8_t s);
+	// return true if the datagram was successfully sent, or false if there was an error
+	static bool socketSendUDP(uint8_t s);
 	// Initialize the "random" source port number
 	static void socketPortRand(uint16_t n);
 };
