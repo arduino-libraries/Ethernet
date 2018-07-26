@@ -336,6 +336,7 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
 				iUdp.flush(); // FIXME
 				return -9;//INVALID_RESPONSE;
 			}
+			// FIXME: seeems to lock up here on ESP8266, but why??
 			iUdp.read(aAddress.raw_address(), 4);
 			return SUCCESS;
 		} else {
