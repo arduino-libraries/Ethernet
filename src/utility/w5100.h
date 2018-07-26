@@ -40,6 +40,15 @@
 #define SPI_ETHERNET_SETTINGS SPISettings(8000000, MSBFIRST, SPI_MODE0)
 #endif
 
+// Arduino Zero can't use W5100-based shields faster than 8 MHz
+// https://github.com/arduino-libraries/Ethernet/issues/37#issuecomment-408036848
+// W5500 does seem to work at 12 MHz.  Delete this if only using W5500
+#if defined(__SAMD21G18A__)
+#undef SPI_ETHERNET_SETTINGS
+#define SPI_ETHERNET_SETTINGS SPISettings(8000000, MSBFIRST, SPI_MODE0)
+#endif
+
+
 typedef uint8_t SOCKET;
 
 class SnMR {
