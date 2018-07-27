@@ -6,7 +6,7 @@
 #include "Dhcp.h"
 #include "utility/w5100.h"
 
-int DhcpClass::beginWithDHCP(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
+uint8_t DhcpClass::beginWithDHCP(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
 {
 	_dhcpLeaseTime=0;
 	_dhcpT1=0;
@@ -29,8 +29,8 @@ void DhcpClass::reset_DHCP_lease()
 	memset(_dhcpLocalIp, 0, 20);
 }
 
-	//return:0 on error, 1 if request is sent and response is received
-int DhcpClass::request_DHCP_lease()
+// return: 0 on error, 1 if request is sent and response is received
+uint8_t DhcpClass::request_DHCP_lease()
 {
 	uint8_t messageType = 0;
 
@@ -46,7 +46,7 @@ int DhcpClass::request_DHCP_lease()
 
 	presend_DHCP();
 
-	int result = 0;
+	uint8_t result = 0;
 
 	unsigned long startTime = millis();
 
@@ -349,9 +349,9 @@ uint8_t DhcpClass::parseDHCPResponse(unsigned long responseTimeout, uint32_t& tr
     3/DHCP_CHECK_REBIND_FAIL: rebind fail
     4/DHCP_CHECK_REBIND_OK: rebind success
 */
-int DhcpClass::checkLease()
+uint8_t DhcpClass::checkLease()
 {
-	int rc = DHCP_CHECK_NONE;
+	uint8_t rc = DHCP_CHECK_NONE;
 
 	unsigned long now = millis();
 	unsigned long elapsed = now - _lastCheckLeaseMillis;
