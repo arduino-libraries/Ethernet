@@ -213,8 +213,8 @@ public:
 
 class EthernetClient : public Client {
 public:
-	EthernetClient() : sockindex(MAX_SOCK_NUM), _timeout(1000) { }
-	EthernetClient(uint8_t s) : sockindex(s), _timeout(1000) { }
+	EthernetClient() : _sockindex(MAX_SOCK_NUM), _timeout(1000) { }
+	EthernetClient(uint8_t s) : _sockindex(s), _timeout(1000) { }
 	virtual ~EthernetClient() {};
 
 	uint8_t status();
@@ -230,12 +230,12 @@ public:
 	virtual void flush();
 	virtual void stop();
 	virtual uint8_t connected();
-	virtual operator bool() { return sockindex < MAX_SOCK_NUM; }
+	virtual operator bool() { return _sockindex < MAX_SOCK_NUM; }
 	virtual bool operator==(const bool value) { return bool() == value; }
 	virtual bool operator!=(const bool value) { return bool() != value; }
 	virtual bool operator==(const EthernetClient&);
 	virtual bool operator!=(const EthernetClient& rhs) { return !this->operator==(rhs); }
-	uint8_t getSocketNumber() const { return sockindex; }
+	uint8_t getSocketNumber() const { return _sockindex; }
 	virtual uint16_t localPort();
 	virtual IPAddress remoteIP();
 	virtual uint16_t remotePort();
@@ -246,7 +246,7 @@ public:
 	using Print::write;
 
 private:
-	uint8_t sockindex; // MAX_SOCK_NUM means client not in use
+	uint8_t _sockindex; // MAX_SOCK_NUM means client not in use
 	uint16_t _timeout;
 };
 
