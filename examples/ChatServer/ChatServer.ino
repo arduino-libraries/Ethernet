@@ -32,7 +32,7 @@ IPAddress subnet(255, 255, 0, 0);
 
 // telnet defaults to port 23
 EthernetServer server(23);
-boolean alreadyConnected = false; // whether or not the client was connected previously
+bool alreadyConnected = false; // whether or not the client was connected previously
 
 void setup() {
   // You can use Ethernet.init(pin) to configure the CS pin
