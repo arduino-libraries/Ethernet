@@ -63,7 +63,8 @@ enum EthernetHardwareStatus {
 	EthernetNoHardware,
 	EthernetW5100,
 	EthernetW5200,
-	EthernetW5500
+	EthernetW5500,
+	EthernetW5100S
 };
 
 class EthernetUDP;
