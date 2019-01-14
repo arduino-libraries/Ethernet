@@ -12,6 +12,25 @@
 #include "Ethernet.h"
 #include "w5100.h"
 
+//#define DEBUG_W5100_CPP_ISW6100
+//#define DEBUG_W5100_CPP_ISW5200
+//#define DEBUG_W5100_CPP_ISW5500
+//#define DEBUG_W5100_CPP_ISW5100S
+//#define DEBUG_W5100_CPP_ISW5100
+
+//#define DEBUG_W5100_CPP_SOFTRESET
+
+//#define DEBUG_W5100_CPP_WRITE
+//#define DEBUG_W5100_CPP_WRITE_COMMON
+//#define DEBUG_W5100_CPP_WRITE_SOCKET
+//#define DEBUG_W5100_CPP_WRITE_TX
+//#define DEBUG_W5100_CPP_WRITE_RX
+
+//#define DEBUG_W5100_CPP_READ
+//#define DEBUG_W5100_CPP_READ_COMMON
+//#define DEBUG_W5100_CPP_READ_SOCKET
+//#define DEBUG_W5100_CPP_READ_TX
+//#define DEBUG_W5100_CPP_READ_RX
 
 /***************************************************/
 /**            Default SS pin setting             **/
@@ -52,6 +71,7 @@
 // W5100 controller instance
 uint8_t  W5100Class::chip = 0;
 uint8_t  W5100Class::CH_BASE_MSB;
+uint16_t  W5100Class::CH_SIZE;
 uint8_t  W5100Class::ss_pin = SS_PIN_DEFAULT;
 #ifdef ETHERNET_LARGE_BUFFERS
 uint16_t W5100Class::SSIZE = 2048;
@@ -100,6 +120,8 @@ uint8_t W5100Class::init(void)
 	// reset time, this can be edited or removed.
 	delay(560);
 	//Serial.println("w5100 init");
+	
+	CH_SIZE = 0x0100;	// Default except W6100
 
 	SPI.begin();
 	initSS();
@@ -205,6 +227,30 @@ uint8_t W5100Class::init(void)
 		writeTMSR(0x55);
 		writeRMSR(0x55);
 #endif
+	// Try W6100. Brandnew based W5500.
+	} else if (isW6100()) {
+		CH_BASE_MSB = 0x60;
+		CH_SIZE = 0x0400;	// W6100
+#ifdef ETHERNET_LARGE_BUFFERS
+#if MAX_SOCK_NUM <= 1
+		SSIZE = 16384;
+#elif MAX_SOCK_NUM <= 2
+		SSIZE = 8192;
+#elif MAX_SOCK_NUM <= 4
+		SSIZE = 4096;
+#else
+		SSIZE = 2048;
+#endif
+		SMASK = SSIZE - 1;
+		for (i=0; i<MAX_SOCK_NUM; i++) {
+			writeSnRX_SIZE(i, SSIZE >> 10);
+			writeSnTX_SIZE(i, SSIZE >> 10);
+		}
+		for (; i<8; i++) {
+			writeSnRX_SIZE(i, 0);
+			writeSnTX_SIZE(i, 0);
+		}
+#endif
 	// No hardware seems to be present.  Or it could be a W5200
 	// that's heard other SPI communication if its chip select
 	// pin wasn't high when a SD card or other SPI chip was used.
@@ -223,23 +269,101 @@ uint8_t W5100Class::init(void)
 uint8_t W5100Class::softReset(void)
 {
 	uint16_t count=0;
+	uint8_t sysr;
 
-	//Serial.println("Wiznet soft reset");
-	// write to reset bit
-	writeMR(0x80);
-	// then wait for soft reset to complete
-	do {
-		uint8_t mr = readMR();
-		//Serial.print("mr=");
-		//Serial.println(mr, HEX);
-		if (mr == 0 || (mr == 3 && chip == 50)) return 1;
-		delay(1);
-	} while (++count < 20);
-	return 0;
+	if(chip == 61)
+	{
+		writeCHPLCKR_W6100(W6100_CHPLCKR_UNLOCK);		// Unlock SYSR[CHPL]
+		count = 0;
+		do{												// Wait Unlock Complete
+			if(++count > 20)							// Check retry count
+			{
+				#if defined DEBUG_W5100_CPP_SOFTRESET
+				PRINTSTR("count !< 20");
+				#endif
+				return 0;								// Over Limit retry count
+			}
+			#if defined DEBUG_W5100_CPP_SOFTRESET
+			PRINTVAR(count);
+			#endif
+		} while ((readSYSR_W6100() & W6100_SYSR_CHPL_LOCK) ^ W6100_SYSR_CHPL_ULOCK);	// Exit Wait Unlock Complete
+
+		writeSYCR0(0x0);								// Software Reset
+
+		do{												// Wait Lock Complete
+			if(++count > 20)							// Check retry count
+			{
+				#if defined DEBUG_W5100_CPP_SOFTRESET
+				PRINTSTR("count !< 20");
+				#endif
+				return 0;								// Over Limit retry count
+			}
+			
+			#if defined DEBUG_W5100_CPP_SOFTRESET
+			PRINTVAR(count);
+			#endif
+		} while ((readSYSR_W6100() & W6100_SYSR_CHPL_LOCK) ^ W6100_SYSR_CHPL_LOCK);	// Exit Wait Lock Complete
+
+		return 1;
+	}
+	else
+	{
+		count = 0;
+
+		//Serial.println("Wiznet soft reset");
+		// write to reset bit
+		writeMR(0x80);
+		// then wait for soft reset to complete
+		do {
+			uint8_t mr = readMR();
+			//Serial.print("mr=");
+			//Serial.println(mr, HEX);
+			if (mr == 0 || (mr == 3 && chip == 50)) return 1;
+			delay(1);
+		} while (++count < 20);
+		return 0;
+	}
+}
+
+uint8_t W5100Class::isW6100(void)
+{
+	#if defined DEBUG_W5100_CPP_ISW6100
+	PRINTSTR("isW6100");
+	#endif
+
+	chip = 61;
+	CH_BASE_MSB = 0x80;
+
+	if (!softReset()) return 0;
+
+	// Unlock
+	writeCHPLCKR_W6100(W6100_CHPLCKR_UNLOCK);
+	writeNETLCKR_W6100(W6100_NETLCKR_UNLOCK);
+	writePHYLCKR_W6100(W6100_PHYLCKR_UNLOCK);
+
+	// W6100 CIDR0 
+	// Version 97(dec) 0x61(hex)
+	int ver = readVERSIONR_W6100();
+
+	#if defined DEBUG_W5100_CPP_ISW6100
+	Serial.print("version = 0x");
+	Serial.println(ver, HEX);
+	#endif
+
+	if (ver != 97) return 0;
+	#if defined DEBUG_W5100_CPP_ISW6100
+	Serial.println("chip is W6100");
+	#endif
+
+	return 1;
 }
 
 uint8_t W5100Class::isW5100(void)
 {
+	#if defined DEBUG_W5100_CPP_ISW5100
+	PRINTSTR("isW5100");
+	#endif
+
 	chip = 51;
 	//Serial.println("w5100.cpp: detect W5100 chip");
 	if (!softReset()) return 0;
@@ -250,11 +374,20 @@ uint8_t W5100Class::isW5100(void)
 	writeMR(0x00);
 	if (readMR() != 0x00) return 0;
 	//Serial.println("chip is W5100");
+
+	#if defined DEBUG_W5100_CPP_ISW5100
+	PRINTSTR("chip is W5100");
+	#endif
+
 	return 1;
 }
 
 uint8_t W5100Class::isW5100S(void)
 {
+	#if defined DEBUG_W5100_CPP_ISW5100S
+	PRINTSTR("isW5100S");
+	#endif
+
 	chip = 50;
 	//Serial.println("w5100.cpp: detect W5100S chip");
 	if (!softReset()) return 0;
@@ -267,11 +400,20 @@ uint8_t W5100Class::isW5100S(void)
 	//Serial.println(ver);
 	if (ver != 81) return 0;
 	//Serial.println("chip is W5100S");
+
+	#if defined DEBUG_W5100_CPP_ISW5100S
+	PRINTSTR("chip is W5100S");
+	#endif
+
 	return 1;
 }
 
 uint8_t W5100Class::isW5200(void)
 {
+	#if defined DEBUG_W5100_CPP_ISW5200
+	PRINTSTR("isW5200");
+	#endif
+
 	chip = 52;
 	//Serial.println("w5100.cpp: detect W5200 chip");
 	if (!softReset()) return 0;
@@ -286,11 +428,20 @@ uint8_t W5100Class::isW5200(void)
 	//Serial.println(ver);
 	if (ver != 3) return 0;
 	//Serial.println("chip is W5200");
+
+	#if defined DEBUG_W5100_CPP_ISW5200
+	PRINTSTR("chip is W5200");
+	#endif
+
 	return 1;
 }
 
 uint8_t W5100Class::isW5500(void)
 {
+	#if defined DEBUG_W5100_CPP_ISW5500
+	PRINTSTR("isW5500");
+	#endif
+
 	chip = 55;
 	//Serial.println("w5100.cpp: detect W5500 chip");
 	if (!softReset()) return 0;
@@ -305,6 +456,11 @@ uint8_t W5100Class::isW5500(void)
 	//Serial.println(ver);
 	if (ver != 4) return 0;
 	//Serial.println("chip is W5500");
+
+	#if defined DEBUG_W5100_CPP_ISW5500
+	PRINTSTR("chip is W5500");
+	#endif
+
 	return 1;
 }
 
@@ -329,6 +485,12 @@ W5100Linkstatus W5100Class::getLinkStatus()
 	  case 55:
 		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 		phystatus = readPHYCFGR_W5500();
+		SPI.endTransaction();
+		if (phystatus & 0x01) return LINK_ON;
+		return LINK_OFF;	  
+	  case 61:
+		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+		phystatus = readPHYCFGR_W6100();
 		SPI.endTransaction();
 		if (phystatus & 0x01) return LINK_ON;
 		return LINK_OFF;	  
@@ -366,6 +528,139 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 			SPI.transfer(buf[i]);
 		}
 #endif
+		resetSS();
+	} else if (chip == 61) { // chip == 61
+		setSS();
+
+		#if defined DEBUG_W5100_CPP_WRITE
+		PRINTSTR("write");
+		#endif
+
+		if (addr < CH_BASE()) {
+			// common registers
+			#if defined DEBUG_W5100_CPP_WRITE_COMMON
+			PRINTSTR("common register");
+			#endif
+
+			cmd[0] = (addr>>8) & 0x7F;
+			cmd[1] = addr & 0xFF;
+			cmd[2] = W6100_SPI_FRAME_CTL_BSB_BLK(0)
+					| W6100_SPI_FRAME_CTL_BSB_COMM
+					| W6100_SPI_FRAME_CTL_WD
+					| W6100_SPI_FRAME_CTL_OPM_VDM
+					;
+
+			#if defined DEBUG_W5100_CPP_WRITE_COMMON
+			PRINTVAR_HEX(addr);
+			PRINTVAR_HEX(cmd[0]);
+			PRINTVAR_HEX(cmd[1]);
+			PRINTVAR_HEX(cmd[2]);
+			#endif
+
+		} else if (addr < W6100_TX_BASE_ADDR) {
+			// socket registers
+			#if defined DEBUG_W5100_CPP_WRITE_SOCKET
+			PRINTSTR("socket register");
+			#endif
+
+			cmd[0] = (addr>>8) & 0x3;
+			cmd[1] = addr & 0xFF;
+			cmd[2] = W6100_SPI_FRAME_CTL_BSB_BLK((addr>>10)&0x7)
+					| W6100_SPI_FRAME_CTL_BSB_SOCK
+					| W6100_SPI_FRAME_CTL_WD
+					| W6100_SPI_FRAME_CTL_OPM_VDM
+					;
+
+			#if defined DEBUG_W5100_CPP_WRITE_SOCKET
+			PRINTVAR_HEX(addr);
+			PRINTVAR_HEX(cmd[0]);
+			PRINTVAR_HEX(cmd[1]);
+			PRINTVAR_HEX(cmd[2]);
+			#endif
+
+		} else if (addr < W6100_RX_BASE_ADDR) {
+			// transmit buffers
+
+			#if defined DEBUG_W5100_CPP_WRITE_TX
+			PRINTSTR("transmit buffer register");
+			#endif
+
+			cmd[0] = addr>>8;
+			cmd[1] = addr & 0xFF;
+
+			#if defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 1
+			cmd[2] = 0;						// 16K buffers
+			#elif defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 2
+			cmd[2] = ((addr >> 8) & 0x20);	// 8K buffers
+			#elif defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 4
+			cmd[2] = ((addr >> 7) & 0x60);	// 4K buffers
+			#else
+			cmd[2] = ((addr >> 6) & 0xE0);	// 2K buffers
+			#endif
+
+			cmd[2] |= W6100_SPI_FRAME_CTL_BSB_BLK(0)
+					| W6100_SPI_FRAME_CTL_BSB_TXBF
+					| W6100_SPI_FRAME_CTL_WD
+					| W6100_SPI_FRAME_CTL_OPM_VDM
+					;
+
+			#if defined DEBUG_W5100_CPP_WRITE_TX
+			PRINTVAR_HEX(addr);
+			PRINTVAR_HEX(cmd[0]);
+			PRINTVAR_HEX(cmd[1]);
+			PRINTVAR_HEX(cmd[2]);
+			#endif
+
+		} else {
+			// receive buffers
+
+			#if defined DEBUG_W5100_CPP_WRITE_RX
+			PRINTSTR("receive buffer register");
+			#endif
+
+			cmd[0] = addr>>8;
+			cmd[1] = addr & 0xFF;
+
+			#if defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 1
+			cmd[2] = 0;						// 16K buffers
+			#elif defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 2
+			cmd[2] = ((addr >> 8) & 0x20);	// 8K buffers
+			#elif defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 4
+			cmd[2] = ((addr >> 7) & 0x60);	// 4K buffers
+			#else
+			cmd[2] = ((addr >> 6) & 0xE0);	// 2K buffers
+			#endif
+
+			cmd[2] |= W6100_SPI_FRAME_CTL_BSB_BLK(0)
+					| W6100_SPI_FRAME_CTL_BSB_RXBF
+					| W6100_SPI_FRAME_CTL_WD
+					| W6100_SPI_FRAME_CTL_OPM_VDM
+					;
+
+			#if defined DEBUG_W5100_CPP_WRITE_RX
+			PRINTVAR_HEX(addr);
+			PRINTVAR_HEX(cmd[0]);
+			PRINTVAR_HEX(cmd[1]);
+			PRINTVAR_HEX(cmd[2]);
+			#endif
+
+		}
+		if (len <= 5) {
+			for (uint8_t i=0; i < len; i++) {
+				cmd[i + 3] = buf[i];
+			}
+			SPI.transfer(cmd, len + 3);
+		} else {
+			SPI.transfer(cmd, 3);
+#ifdef SPI_HAS_TRANSFER_BUF
+			SPI.transfer(buf, NULL, len);
+#else
+			// TODO: copy 8 bytes at a time to cmd[] and block transfer
+			for (uint16_t i=0; i < len; i++) {
+				SPI.transfer(buf[i]);
+			}
+#endif
+		}
 		resetSS();
 	} else { // chip == 55
 		setSS();
@@ -459,6 +754,126 @@ uint16_t W5100Class::read(uint16_t addr, uint8_t *buf, uint16_t len)
 		cmd[2] = (len >> 8) & 0x7F;
 		cmd[3] = len & 0xFF;
 		SPI.transfer(cmd, 4);
+		memset(buf, 0, len);
+		SPI.transfer(buf, len);
+		resetSS();
+	} else if (chip == 61) { // chip == 61
+		setSS();
+
+		#if defined DEBUG_W5100_CPP_READ
+		PRINTSTR("read");
+		#endif
+
+		if (addr < CH_BASE()) {
+			// common registers
+			#if defined DEBUG_W5100_CPP_READ_COMMON
+			PRINTSTR("common register");
+			#endif
+
+			cmd[0] = (addr>>8) & 0x7F;
+			cmd[1] = addr & 0xFF;
+			cmd[2] = W6100_SPI_FRAME_CTL_BSB_BLK(0)
+					| W6100_SPI_FRAME_CTL_BSB_COMM
+					| W6100_SPI_FRAME_CTL_RD
+					| W6100_SPI_FRAME_CTL_OPM_VDM
+					;
+
+			#if defined DEBUG_W5100_CPP_READ_COMMON
+			PRINTVAR_HEX(addr);
+			PRINTVAR_HEX(cmd[0]);
+			PRINTVAR_HEX(cmd[1]);
+			PRINTVAR_HEX(cmd[2]);
+			#endif
+
+		} else if (addr < W6100_TX_BASE_ADDR) {
+			// socket registers
+			#if defined DEBUG_W5100_CPP_READ_SOCKET
+			PRINTSTR("socket register");
+			#endif
+
+			cmd[0] = (addr>>8) & 0x3;
+			cmd[1] = addr & 0xFF;
+			cmd[2] = W6100_SPI_FRAME_CTL_BSB_BLK((addr>>10)&0x7)
+					| W6100_SPI_FRAME_CTL_BSB_SOCK
+					| W6100_SPI_FRAME_CTL_RD
+					| W6100_SPI_FRAME_CTL_OPM_VDM
+					;
+
+			#if defined DEBUG_W5100_CPP_READ_SOCKET
+			PRINTVAR_HEX(addr);
+			PRINTVAR_HEX(cmd[0]);
+			PRINTVAR_HEX(cmd[1]);
+			PRINTVAR_HEX(cmd[2]);
+			#endif
+
+		} else if (addr < W6100_RX_BASE_ADDR) {
+			// transmit buffers
+
+			#if defined DEBUG_W5100_CPP_READ_TX
+			PRINTSTR("transmit buffer register");
+			#endif
+
+			cmd[0] = addr>>8;
+			cmd[1] = addr & 0xFF;
+			
+			#if defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 1
+			cmd[2] = 0;						// 16K buffers
+			#elif defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 2
+			cmd[2] = ((addr >> 8) & 0x20);	// 8K buffers
+			#elif defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 4
+			cmd[2] = ((addr >> 7) & 0x60);	// 4K buffers
+			#else
+			cmd[2] = ((addr >> 6) & 0xE0);	// 2K buffers
+			#endif
+			
+			cmd[2] |= W6100_SPI_FRAME_CTL_BSB_BLK(0)
+					| W6100_SPI_FRAME_CTL_BSB_TXBF
+					| W6100_SPI_FRAME_CTL_RD
+					| W6100_SPI_FRAME_CTL_OPM_VDM
+					;
+
+			#if defined DEBUG_W5100_CPP_READ_TX
+			PRINTVAR_HEX(addr);
+			PRINTVAR_HEX(cmd[0]);
+			PRINTVAR_HEX(cmd[1]);
+			PRINTVAR_HEX(cmd[2]);
+			#endif
+
+		} else {
+			// receive buffers
+
+			#if defined DEBUG_W5100_CPP_READ_RX
+			PRINTSTR("receive buffer register");
+			#endif
+
+			cmd[0] = addr>>8;
+			cmd[1] = addr & 0xFF;
+
+			#if defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 1
+			cmd[2] = 0;						// 16K buffers
+			#elif defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 2
+			cmd[2] = ((addr >> 8) & 0x20);	// 8K buffers
+			#elif defined(ETHERNET_LARGE_BUFFERS) && MAX_SOCK_NUM <= 4
+			cmd[2] = ((addr >> 7) & 0x60);	// 4K buffers
+			#else
+			cmd[2] = ((addr >> 6) & 0xE0);	// 2K buffers
+			#endif
+
+			cmd[2] |= W6100_SPI_FRAME_CTL_BSB_BLK(0)
+					| W6100_SPI_FRAME_CTL_BSB_RXBF
+					| W6100_SPI_FRAME_CTL_RD
+					| W6100_SPI_FRAME_CTL_OPM_VDM
+					;
+
+			#if defined DEBUG_W5100_CPP_READ_RX
+			PRINTVAR_HEX(addr);
+			PRINTVAR_HEX(cmd[0]);
+			PRINTVAR_HEX(cmd[1]);
+			PRINTVAR_HEX(cmd[2]);
+			#endif
+			
+		}
+		SPI.transfer(cmd, 3);
 		memset(buf, 0, len);
 		SPI.transfer(buf, len);
 		resetSS();

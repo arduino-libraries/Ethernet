@@ -20,12 +20,18 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
+#define ON_TAYLOR_WORK_PC
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
+#if defined ON_TAYLOR_WORK_PC
+IPAddress ip(192, 168, 0, 3);
+#else
 IPAddress ip(192, 168, 1, 177);
+#endif
 
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
