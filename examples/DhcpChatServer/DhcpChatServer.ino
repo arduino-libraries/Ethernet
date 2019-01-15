@@ -23,20 +23,9 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
-#define ON_TAYLOR_WORK_PC
-//#define DEBUG_DHCPCHATSERVER_INO_SETUP
-
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network.
 // gateway and subnet are optional:
-#ifdef  ON_TAYLOR_WORK_PC
-byte mac[] = {
-  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip(192, 168, 0, 3);
-IPAddress myDns(192, 168, 0, 1);
-IPAddress gateway(192, 168, 0, 1);
-IPAddress subnet(255, 255, 0, 0);
-#else
 byte mac[] = {
   0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
 };
@@ -44,7 +33,6 @@ IPAddress ip(192, 168, 1, 177);
 IPAddress myDns(192, 168, 1, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 0, 0);
-#endif
 
 // telnet defaults to port 23
 EthernetServer server(23);
@@ -67,14 +55,7 @@ void setup() {
 
   // start the Ethernet connection:
   Serial.println("Trying to get an IP address using DHCP");
-  #if defined DEBUG_DHCPCHATSERVER_INO_SETUP
-  PRINTSTR("Ethernet.begin(mac)");
-  #endif
   if (Ethernet.begin(mac) == 0) {
-    #if defined DEBUG_DHCPCHATSERVER_INO_SETUP
-    PRINTSTR("Ethernet.begin(mac) == 0");
-    #endif
-
     Serial.println("Failed to configure Ethernet using DHCP");
     // Check for Ethernet hardware present
     if (Ethernet.hardwareStatus() == EthernetNoHardware) {
@@ -89,11 +70,6 @@ void setup() {
     // initialize the Ethernet device not using DHCP:
     Ethernet.begin(mac, ip, myDns, gateway, subnet);
   }
-
-  #if defined DEBUG_DHCPCHATSERVER_INO_SETUP
-  PRINTLINE();
-  #endif
-
   // print your local IP address:
   Serial.print("My IP address: ");
   Serial.println(Ethernet.localIP());

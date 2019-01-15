@@ -6,11 +6,6 @@
 #include "Dhcp.h"
 #include "utility/w5100.h"
 
-//#define DEBUG_DHCP_CPP_BEGINWITHDHCP
-//#define DEBUG_DHCP_CPP_DHCP_LEASE
-//#define DEBUG_DHCP_CPP_DHCP_MESSAGE
-//#define DEBUG_DHCP_CPP_DHCPRESPONSE
-
 int DhcpClass::beginWithDHCP(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
 {
 	_dhcpLeaseTime=0;
@@ -20,18 +15,9 @@ int DhcpClass::beginWithDHCP(uint8_t *mac, unsigned long timeout, unsigned long 
 	_responseTimeout = responseTimeout;
 
 	// zero out _dhcpMacAddr
-	#if defined DEBUG_ETHERNET_CPP_BEGIN
-	PRINTLINE_DEF(DEBUG_ETHERNET_CPP_BEGIN);
-	#endif
 	memset(_dhcpMacAddr, 0, 6);
-	#if defined DEBUG_ETHERNET_CPP_BEGIN
-	PRINTLINE_DEF(DEBUG_ETHERNET_CPP_BEGIN);
-	#endif
 	reset_DHCP_lease();
 
-	#if defined DEBUG_ETHERNET_CPP_BEGIN
-	PRINTLINE_DEF(DEBUG_ETHERNET_CPP_BEGIN);
-	#endif
 	memcpy((void*)_dhcpMacAddr, (void*)mac, 6);
 	_dhcp_state = STATE_DHCP_START;
 	return request_DHCP_lease();
@@ -48,52 +34,23 @@ int DhcpClass::request_DHCP_lease()
 {
 	uint8_t messageType = 0;
 
-	#if defined DEBUG_DHCP_CPP_DHCP_LEASE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_LEASE);
-	#endif
-
 	// Pick an initial transaction ID
 	_dhcpTransactionId = random(1UL, 2000UL);
 	_dhcpInitialTransactionId = _dhcpTransactionId;
 
-	#if defined DEBUG_DHCP_CPP_DHCP_LEASE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_LEASE);
-	#endif
-
 	_dhcpUdpSocket.stop();
-
-	#if defined DEBUG_DHCP_CPP_DHCP_LEASE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_LEASE);
-	#endif
-
 	if (_dhcpUdpSocket.begin(DHCP_CLIENT_PORT) == 0) {
 		// Couldn't get a socket
 		return 0;
 	}
 
-	#if defined DEBUG_DHCP_CPP_DHCP_LEASE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_LEASE);
-	#endif
-
 	presend_DHCP();
-
-	#if defined DEBUG_DHCP_CPP_DHCP_LEASE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_LEASE);
-	#endif
 
 	int result = 0;
 
 	unsigned long startTime = millis();
 
-	#if defined DEBUG_DHCP_CPP_DHCP_LEASE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_LEASE);
-	#endif
-
 	while (_dhcp_state != STATE_DHCP_LEASED) {
-		#if defined DEBUG_DHCP_CPP_DHCP_LEASE
-		PRINTVAR(_dhcp_state);
-		#endif
-
 		if (_dhcp_state == STATE_DHCP_START) {
 			_dhcpTransactionId++;
 			send_DHCP_MESSAGE(DHCP_DISCOVER, ((millis() - startTime) / 1000));
@@ -147,10 +104,6 @@ int DhcpClass::request_DHCP_lease()
 			break;
 	}
 
-	#if defined DEBUG_DHCP_CPP_DHCP_LEASE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_LEASE);
-	#endif
-
 	// We're done with the socket now
 	_dhcpUdpSocket.stop();
 	_dhcpTransactionId++;
@@ -169,10 +122,6 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 	memset(buffer, 0, 32);
 	IPAddress dest_addr(255, 255, 255, 255); // Broadcast address
 
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
-
 	if (_dhcpUdpSocket.beginPacket(dest_addr, DHCP_SERVER_PORT) == -1) {
 		//Serial.printf("DHCP transmit error\n");
 		// FIXME Need to return errors
@@ -184,10 +133,6 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 	buffer[2] = DHCP_HLENETHERNET;  // hlen
 	buffer[3] = DHCP_HOPS;          // hops
 
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
-
 	// xid
 	unsigned long xid = htonl(_dhcpTransactionId);
 	memcpy(buffer + 4, &(xid), 4);
@@ -195,10 +140,6 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 	// 8, 9 - seconds elapsed
 	buffer[8] = ((secondsElapsed & 0xff00) >> 8);
 	buffer[9] = (secondsElapsed & 0x00ff);
-
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
 
 	// flags
 	unsigned short flags = htons(DHCP_FLAGSBROADCAST);
@@ -209,48 +150,20 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 	// siaddr: already zeroed
 	// giaddr: already zeroed
 
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
-
 	//put data in W5100 transmit buffer
 	_dhcpUdpSocket.write(buffer, 28);
 
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
-
 	memset(buffer, 0, 32); // clear local buffer
 
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
-
 	memcpy(buffer, _dhcpMacAddr, 6); // chaddr
-
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
 
 	//put data in W5100 transmit buffer
 	_dhcpUdpSocket.write(buffer, 16);
 
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
-
 	memset(buffer, 0, 32); // clear local buffer
-
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
 
 	// leave zeroed out for sname && file
 	// put in W5100 transmit buffer x 6 (192 bytes)
-
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
 
 	for(int i = 0; i < 6; i++) {
 		_dhcpUdpSocket.write(buffer, 32);
@@ -278,17 +191,9 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 	buffer[17] = strlen(HOST_NAME) + 6; // length of hostname + last 3 bytes of mac address
 	strcpy((char*)&(buffer[18]), HOST_NAME);
 
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
-
 	printByte((char*)&(buffer[24]), _dhcpMacAddr[3]);
 	printByte((char*)&(buffer[26]), _dhcpMacAddr[4]);
 	printByte((char*)&(buffer[28]), _dhcpMacAddr[5]);
-
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
 
 	//put data in W5100 transmit buffer
 	_dhcpUdpSocket.write(buffer, 30);
@@ -322,16 +227,8 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 	buffer[7] = dhcpT2value;
 	buffer[8] = endOption;
 
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
-
 	//put data in W5100 transmit buffer
 	_dhcpUdpSocket.write(buffer, 9);
-
-	#if defined DEBUG_DHCP_CPP_DHCP_MESSAGE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCP_MESSAGE);
-	#endif
 
 	_dhcpUdpSocket.endPacket();
 }
@@ -343,27 +240,15 @@ uint8_t DhcpClass::parseDHCPResponse(unsigned long responseTimeout, uint32_t& tr
 
 	unsigned long startTime = millis();
 
-	#if defined DEBUG_DHCP_CPP_DHCPRESPONSE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCPRESPONSE);
-	#endif
-
 	while (_dhcpUdpSocket.parsePacket() <= 0) {
 		if ((millis() - startTime) > responseTimeout) {
 			return 255;
 		}
 		delay(50);
 	}
-
-	#if defined DEBUG_DHCP_CPP_DHCPRESPONSE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCPRESPONSE);
-	#endif
 	// start reading in the packet
 	RIP_MSG_FIXED fixedMsg;
 	_dhcpUdpSocket.read((uint8_t*)&fixedMsg, sizeof(RIP_MSG_FIXED));
-
-	#if defined DEBUG_DHCP_CPP_DHCPRESPONSE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCPRESPONSE);
-	#endif
 
 	if (fixedMsg.op == DHCP_BOOTREPLY && _dhcpUdpSocket.remotePort() == DHCP_SERVER_PORT) {
 		transactionId = ntohl(fixedMsg.xid);
@@ -448,10 +333,6 @@ uint8_t DhcpClass::parseDHCPResponse(unsigned long responseTimeout, uint32_t& tr
 			}
 		}
 	}
-
-	#if defined DEBUG_DHCP_CPP_DHCPRESPONSE
-	PRINTLINE_DEF(DEBUG_DHCP_CPP_DHCPRESPONSE);
-	#endif
 
 	// Need to skip to end of the packet regardless here
 	_dhcpUdpSocket.flush(); // FIXME

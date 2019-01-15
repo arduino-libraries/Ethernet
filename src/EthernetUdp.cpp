@@ -31,31 +31,12 @@
 #include "Dns.h"
 #include "utility/w5100.h"
 
-//#define DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-//#define DEBUG_ETHERNET_UDP_READ
-//#define DEBUG_ETHERNETUDP_CPP_WRITE
-//#define DEBUG_ETHERNET_UDP_CPP_BEGINPACKET
-//#define DEBUG_ETHERNET_UDP_CPP_BEGIN
-
 /* Start EthernetUDP socket, listening at local port PORT */
 uint8_t EthernetUDP::begin(uint16_t port)
 {
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGIN
-	PRINTLINE();
-	#endif
 	if (sockindex < MAX_SOCK_NUM) Ethernet.socketClose(sockindex);
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGIN
-	PRINTLINE();
-	#endif
-
 	sockindex = Ethernet.socketBegin(SnMR::UDP, port);
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGIN
-	PRINTLINE();
-	PRINTVAR(sockindex);
-	#endif
-
-	
-	if (sockindex >= MAX_SOCK_NUM)	return 0;
+	if (sockindex >= MAX_SOCK_NUM) return 0;
 	_port = port;
 	_remaining = 0;
 	return 1;
@@ -79,46 +60,19 @@ void EthernetUDP::stop()
 
 int EthernetUDP::beginPacket(const char *host, uint16_t port)
 {
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGINPACKET
-	PRINTLINE();
-	#endif
-
 	// Look up the host first
 	int ret = 0;
 	DNSClient dns;
 	IPAddress remote_addr;
 
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGINPACKET
-	PRINTVAR_HEX(Ethernet.dnsServerIP());
-	#endif
-
 	dns.begin(Ethernet.dnsServerIP());
-
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGINPACKET
-	PRINTLINE();
-	#endif
-
 	ret = dns.getHostByName(host, remote_addr);
-
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGINPACKET
-	PRINTLINE();
-	#endif
-
 	if (ret != 1) return ret;
-
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGINPACKET
-	PRINTLINE();
-	#endif
-
 	return beginPacket(remote_addr, port);
 }
 
 int EthernetUDP::beginPacket(IPAddress ip, uint16_t port)
 {
-	#if defined DEBUG_ETHERNET_UDP_CPP_BEGINPACKET
-	PRINTLINE();
-	#endif
-
 	_offset = 0;
 	//Serial.printf("UDP beginPacket\n");
 	return Ethernet.socketStartUDP(sockindex, rawIPAddress(ip), port);
@@ -136,18 +90,9 @@ size_t EthernetUDP::write(uint8_t byte)
 
 size_t EthernetUDP::write(const uint8_t *buffer, size_t size)
 {
-	#if defined DEBUG_ETHERNETUDP_CPP_WRITE
-	PRINTLINE();
-	#endif
-
 	//Serial.printf("UDP write %d\n", size);
 	uint16_t bytes_written = Ethernet.socketBufferData(sockindex, _offset, buffer, size);
 	_offset += bytes_written;
-
-	#if defined DEBUG_ETHERNETUDP_CPP_WRITE
-	PRINTLINE();
-	#endif
-
 	return bytes_written;
 }
 
@@ -163,129 +108,22 @@ int EthernetUDP::parsePacket()
 
 	if (Ethernet.socketRecvAvailable(sockindex) > 0) {
 		//HACK - hand-parse the UDP packet using TCP recv method
-		uint8_t tmpBuf[20];
+		uint8_t tmpBuf[8];
 		int ret=0;
-		int i;
+		//read 8 header bytes and get IP and port from it
+		ret = Ethernet.socketRecv(sockindex, tmpBuf, 8);
+		if (ret > 0) {
+			_remoteIP = tmpBuf;
+			_remotePort = tmpBuf[4];
+			_remotePort = (_remotePort << 8) + tmpBuf[5];
+			_remaining = tmpBuf[6];
+			_remaining = (_remaining << 8) + tmpBuf[7];
 
-		#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-		PRINTVAR_HEX(_remaining);
-		PRINTLINE_DEF(DEBUG_ETHERNET_UDP_CPP_PARSEPACKET);
-		#endif		
-
-		if(W5100.getChip() == 61)
-		{
-			//read 2 header bytes and get one IPv4 or IPv6
-			ret = Ethernet.socketRecv(sockindex, tmpBuf, 2);
-			if(ret > 0)
-			{
-				#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-				for(i = 0; i < 2; i++)
-				{
-					PRINTVAR_HEX(tmpBuf[0+i]);
-				}
-				PRINTVAR(ret);
-				#endif
-
-				_remaining = (tmpBuf[0] & (0x7))<<8 | tmpBuf[1];
-				#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-				PRINTVAR(_remaining);
-				#endif
-
-				if((tmpBuf[0] & W6100_UDP_HEADER_IPV) == W6100_UDP_HEADER_IPV6)
-				{
-					// IPv6 UDP Recived
-					// 0 1
-					// 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
-					// 18 19
-
-					//read 16 header bytes and get IP and port from it
-					ret = Ethernet.socketRecv(sockindex, &tmpBuf[2], 18);
-					#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-					for(i = 0; i < 18; i++)
-					{
-						PRINTVAR_HEX(tmpBuf[2+i]);
-					}
-					PRINTVAR(ret);
-					#endif
-
-					_remoteIP = &tmpBuf[2];					
-					#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-					for(i = 0; i < 16; i++)
-					{
-						PRINTVAR(tmpBuf[2+i]);
-					}
-					#endif
-
-					_remotePort = (tmpBuf[18]<<8) | tmpBuf[19];
-					#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-					PRINTVAR(_remotePort);
-					#endif
-				}
-				else
-				{
-					// IPv4 UDP Recived
-					// 0 1
-					// 2 3 4 5
-					// 6 7
-
-					//read 6 header bytes and get IP and port from it
-					ret = Ethernet.socketRecv(sockindex, &tmpBuf[2], 6);
-					#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-					for(i = 0; i < 6; i++)
-					{
-						PRINTVAR_HEX(tmpBuf[2+i]);
-					}
-					PRINTVAR(ret);
-					#endif
-
-					_remoteIP = &tmpBuf[2];
-					#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-					for(i = 0; i < 4; i++)
-					{
-						PRINTVAR(tmpBuf[2+i]);
-					}
-					#endif
-
-					_remotePort = (tmpBuf[6]<<8) | tmpBuf[7];
-					#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-					PRINTVAR(_remotePort);
-					#endif
-				}
-
-				ret = _remaining;
-			}
+			// When we get here, any remaining bytes are the data
+			ret = _remaining;
 		}
-		else
-		{
-			//read 8 header bytes and get IP and port from it
-			ret = Ethernet.socketRecv(sockindex, tmpBuf, 8);
-
-			if (ret > 0) {
-
-				_remoteIP = tmpBuf;
-
-				_remotePort = tmpBuf[4];
-				_remotePort = (_remotePort << 8) + tmpBuf[5];
-
-				_remaining = tmpBuf[6];
-				_remaining = (_remaining << 8) + tmpBuf[7];
-
-				// When we get here, any remaining bytes are the data
-				ret = _remaining;
-			}
-		}
-		
-		#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-		PRINTLINE_DEF(DEBUG_ETHERNET_UDP_CPP_PARSEPACKET);
-		#endif
-
 		return ret;
 	}
-
-	#if defined DEBUG_ETHERNET_UDP_CPP_PARSEPACKET
-	PRINTLINE_DEF(DEBUG_ETHERNET_UDP_CPP_PARSEPACKET);
-	#endif
-
 	// There aren't any packets available
 	return 0;
 }
@@ -294,29 +132,11 @@ int EthernetUDP::read()
 {
 	uint8_t byte;
 
-	#if defined DEBUG_ETHERNET_UDP_READ
-	PRINTLINE_DEF(DEBUG_ETHERNET_UDP_READ);
-	#endif
-
 	if ((_remaining > 0) && (Ethernet.socketRecv(sockindex, &byte, 1) > 0)) {
-
-		#if defined DEBUG_ETHERNET_UDP_READ
-		PRINTVAR(_remaining);
-		#endif
-
 		// We read things without any problems
 		_remaining--;
-
-		#if defined DEBUG_ETHERNET_UDP_READ
-		PRINTVAR(_remaining);
-		#endif
-		
 		return byte;
 	}
-
-	#if defined DEBUG_ETHERNET_UDP_READ
-	PRINTLINE_DEF(DEBUG_ETHERNET_UDP_READ);
-	#endif
 
 	// If we get here, there's no data available
 	return -1;
@@ -326,37 +146,17 @@ int EthernetUDP::read(unsigned char *buffer, size_t len)
 {
 	if (_remaining > 0) {
 		int got;
-
-		#if defined DEBUG_ETHERNET_UDP_READ
-		PRINTVAR_HEX(len);
-		PRINTVAR_HEX(_remaining);
-		#endif
-
 		if (_remaining <= len) {
 			// data should fit in the buffer
 			got = Ethernet.socketRecv(sockindex, buffer, _remaining);
-
-			#if defined DEBUG_ETHERNET_UDP_READ
-			PRINTVAR_HEX(got);
-			#endif
-
 		} else {
 			// too much data for the buffer,
 			// grab as much as will fit
 			got = Ethernet.socketRecv(sockindex, buffer, len);
-
-			#if defined DEBUG_ETHERNET_UDP_READ
-			PRINTVAR_HEX(got);
-			#endif
 		}
 		if (got > 0) {
 			_remaining -= got;
 			//Serial.printf("UDP read %d\n", got);
-
-			#if defined DEBUG_ETHERNET_UDP_READ
-			PRINTVAR_HEX(got);
-			#endif
-
 			return got;
 		}
 	}

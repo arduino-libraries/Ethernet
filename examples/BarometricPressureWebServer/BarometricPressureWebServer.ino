@@ -27,20 +27,14 @@
 // the sensor communicates using SPI, so include the library:
 #include <SPI.h>
 
-#define ON_TAYLOR_WORK_PC
 
 // assign a MAC address for the Ethernet controller.
 // fill in your address here:
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
-#if defined ON_TAYLOR_WORK_PC
-IPAddress ip(192, 168, 0, 3);
-#else
 // assign an IP address for the controller:
 IPAddress ip(192, 168, 1, 20);
-#endif
-
 
 
 // Initialize the Ethernet server library

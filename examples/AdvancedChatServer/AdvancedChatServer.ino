@@ -22,25 +22,16 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
-#define ON_TAYLOR_WORK_PC
-
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network.
 // gateway and subnet are optional:
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
-#if defined ON_TAYLOR_WORK_PC
-IPAddress ip(192, 168, 0, 3);
-IPAddress myDns(192, 168, 0, 1);
-IPAddress gateway(192, 168, 0, 1);
-IPAddress subnet(255, 255, 0, 0);
-#else
 IPAddress ip(192, 168, 1, 177);
 IPAddress myDns(192, 168, 1, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 0, 0);
-#endif
 
 
 // telnet defaults to port 23
