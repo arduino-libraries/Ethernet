@@ -25,13 +25,19 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
+#define ON_TAYLOR_WORK_PC
+
 // assign a MAC address for the ethernet controller.
 // fill in your address here:
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
 // Set the static IP address to use if the DHCP fails to assign
+#if defined ON_TAYLOR_WORK_PC
+IPAddress ip(192, 168, 0, 3);
+#else
 IPAddress ip(192, 168, 0, 177);
+#endif
 IPAddress myDns(192, 168, 0, 1);
 
 // initialize the library instance:
