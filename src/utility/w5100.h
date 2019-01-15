@@ -270,11 +270,9 @@ public:
   __GP_REGISTER16(UPORT,  0x002E, 0x0000);    // Unreachable Port address in UDP mode (W5100 only)
   __GP_REGISTER8 (VERSIONR_W5200, 0x001F, 0x0000);   // Chip Version Register (W5200 only)
   __GP_REGISTER8 (VERSIONR_W5500, 0x0039, 0x0000);   // Chip Version Register (W5500 only)
-  __GP_REGISTER8 (VERSIONR_W5100S,     0x0080);   // Chip Version Register (W5100S only)
   __GP_REGISTER8 (PSTATUS_W5200, 0x0035, 0x0000);    // PHY Status
   __GP_REGISTER8 (PHYCFGR_W5500, 0x002E, 0x0000);    // PHY Configuration register, default: 10111xxx
-  __GP_REGISTER8 (PHYCFGR_W5100S,     0x003C);    // PHY Status
-  
+
   // For W6100
   __GP_REGISTER8 (SYCR0, 0x0000, 0x2004); // System Command Register
   __GP_REGISTER8 (SYSR_W6100, 0x0000, 0x2000);  // System Status Register
@@ -405,7 +403,6 @@ private:
   static uint8_t ss_pin;
   static uint8_t softReset(void);
   static uint8_t isW5100(void);
-  static uint8_t isW5100S(void);
   static uint8_t isW5200(void);
   static uint8_t isW5500(void);
   static uint8_t isW6100(void);
@@ -420,7 +417,7 @@ public:
   static const uint16_t SMASK = 0x07FF;
 #endif
   static uint16_t SBASE(uint8_t socknum) {
-    if (chip == 51 || chip == 50) {
+    if (chip == 51) {
       return socknum * SSIZE + 0x4000;
     } else if (chip == 61) {
       return socknum * SSIZE + W6100_TX_BASE_ADDR;
@@ -429,7 +426,7 @@ public:
     }
   }
   static uint16_t RBASE(uint8_t socknum) {
-    if (chip == 51 || chip == 50) {
+    if (chip == 51) {
       return socknum * SSIZE + 0x6000;
     } else if (chip == 61) {
       return socknum * SSIZE + W6100_RX_BASE_ADDR;

@@ -160,29 +160,7 @@ uint8_t W5100Class::init(void)
 			writeSnTX_SIZE(i, 0);
 		}
 #endif
-	// Try W5100S. Brandnew based W5100.
-	} else if (isW5100S()) {
-		CH_BASE_MSB = 0x04;
-#ifdef ETHERNET_LARGE_BUFFERS
-#if MAX_SOCK_NUM <= 1
-		SSIZE = 8192;
-		writeTMSR(0x03);
-		writeRMSR(0x03);
-#elif MAX_SOCK_NUM <= 2
-		SSIZE = 4096;
-		writeTMSR(0x0A);
-		writeRMSR(0x0A);
-#else
-		SSIZE = 2048;
-		writeTMSR(0x55);
-		writeRMSR(0x55);
-#endif
-		SMASK = SSIZE - 1;
-#else
-		writeTMSR(0x55);
-		writeRMSR(0x55);
-#endif
-// Try W5100 last.  This simple chip uses fixed 4 byte frames
+	// Try W5100 last.  This simple chip uses fixed 4 byte frames
 	// for every 8 bit access.  Terribly inefficient, but so simple
 	// it recovers from "hearing" unsuccessful W5100 or W5200
 	// communication.  W5100 is also the only chip without a VERSIONR
@@ -282,7 +260,7 @@ uint8_t W5100Class::softReset(void)
 			uint8_t mr = readMR();
 			//Serial.print("mr=");
 			//Serial.println(mr, HEX);
-			if (mr == 0 || (mr == 3 && chip == 50)) return 1;
+			if (mr == 0) return 1;
 			delay(1);
 		} while (++count < 20);
 		return 0;
@@ -325,23 +303,6 @@ uint8_t W5100Class::isW5100(void)
 	writeMR(0x00);
 	if (readMR() != 0x00) return 0;
 	//Serial.println("chip is W5100");
-	return 1;
-}
-
-uint8_t W5100Class::isW5100S(void)
-{
-	chip = 50;
-	//Serial.println("w5100.cpp: detect W5100S chip");
-	if (!softReset()) return 0;
-	writeMR(0x13);
-	if (readMR() != 0x13) return 0;
-	writeMR(0x03);
-	if (readMR() != 0x03) return 0;
-	int ver = readVERSIONR_W5100S();
-	//Serial.print("version=");
-	//Serial.println(ver);
-	if (ver != 81) return 0;
-	//Serial.println("chip is W5100S");
 	return 1;
 }
 
@@ -389,12 +350,6 @@ W5100Linkstatus W5100Class::getLinkStatus()
 
 	if (!init()) return UNKNOWN;
 	switch (chip) {
-	  case 50:
-		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-		phystatus = readPHYCFGR_W5100S();
-		SPI.endTransaction();
-		if (phystatus & 0x01) return LINK_ON;
-		return LINK_OFF;
 	  case 52:
 		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 		phystatus = readPSTATUS_W5200();
@@ -422,7 +377,7 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 {
 	uint8_t cmd[8];
 
-	if (chip == 51 || chip == 50) {
+	if (chip == 51) {
 		for (uint16_t i=0; i<len; i++) {
 			setSS();
 			SPI.transfer(0xF0);
@@ -596,7 +551,7 @@ uint16_t W5100Class::read(uint16_t addr, uint8_t *buf, uint16_t len)
 {
 	uint8_t cmd[4];
 
-	if (chip == 51 || chip == 50) {
+	if (chip == 51) {
 		for (uint16_t i=0; i < len; i++) {
 			setSS();
 			#if 1
