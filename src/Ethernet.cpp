@@ -114,6 +114,7 @@ EthernetLinkStatus EthernetClass::linkStatus()
 EthernetHardwareStatus EthernetClass::hardwareStatus()
 {
 	switch (W5100.getChip()) {
+		case 50: return EthernetW5100S;
 		case 51: return EthernetW5100;
 		case 52: return EthernetW5200;
 		case 55: return EthernetW5500;
