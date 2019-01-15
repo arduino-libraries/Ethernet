@@ -7,7 +7,6 @@
 #include "Dns.h"
 #include "utility/w5100.h"
 
-//#define DEBUG_W5100_CPP_GETHOSTBYNAME
 
 #define SOCKET_NONE              255
 // Various flags and header field values for a DNS message
@@ -88,10 +87,6 @@ int DNSClient::inet_aton(const char* address, IPAddress& result)
 
 int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t timeout)
 {
-	#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-	PRINTLINE();
-	#endif
-
 	int ret = 0;
 
 	// See if it's a numeric IP address
@@ -100,56 +95,28 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t
 		return 1;
 	}
 
-	#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-	PRINTLINE();
-	#endif
-
 	// Check we've got a valid DNS server to use
 	if (iDNSServer == INADDR_NONE) {
 		return INVALID_SERVER;
 	}
 	
-	#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-	PRINTLINE();
-	#endif
-
 	// Find a socket to use
 	if (iUdp.begin(1024+(millis() & 0xF)) == 1) {
 		// Try up to three times
 		int retries = 0;
 		// while ((retries < 3) && (ret <= 0)) {
 		// Send DNS request
-
-		#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-		PRINTLINE();
-		#endif
-
 		ret = iUdp.beginPacket(iDNSServer, DNS_PORT);
 		if (ret != 0) {
 			// Now output the request data
-
-			#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-			PRINTLINE();
-			#endif
-
 			ret = BuildRequest(aHostname);
 			if (ret != 0) {
 				// And finally send the request
-
-				#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-				PRINTLINE();
-				#endif
-
 				ret = iUdp.endPacket();
 				if (ret != 0) {
 					// Now wait for a response
 					int wait_retries = 0;
 					ret = TIMED_OUT;
-
-					#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-					PRINTLINE();
-					#endif
-
 					while ((wait_retries < 3) && (ret == TIMED_OUT)) {
 						ret = ProcessResponse(timeout, aResult);
 						wait_retries++;
@@ -160,17 +127,9 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t
 		retries++;
 		//}
 
-		#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-		PRINTLINE();
-		#endif
-
 		// We're done with the socket now
 		iUdp.stop();
 	}
-
-	#if defined DEBUG_W5100_CPP_GETHOSTBYNAME
-	PRINTLINE();
-	#endif
 
 	return ret;
 }

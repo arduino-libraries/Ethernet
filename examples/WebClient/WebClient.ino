@@ -17,8 +17,6 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
-#define ON_TAYLOR_WORK_PC
-
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -29,11 +27,7 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 char server[] = "www.google.com";    // name address for Google (using DNS)
 
 // Set the static IP address to use if the DHCP fails to assign
-#if defined ON_TAYLOR_WORK_PC
-IPAddress ip(192, 168, 0, 3);
-#else
 IPAddress ip(192, 168, 0, 177);
-#endif
 IPAddress myDns(192, 168, 0, 1);
 
 // Initialize the Ethernet client library

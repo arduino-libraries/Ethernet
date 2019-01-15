@@ -23,8 +23,6 @@
 #include "utility/w5100.h"
 #include "Dhcp.h"
 
-//#define DEBUG_ETHERNET_CPP_BEGIN
-
 IPAddress EthernetClass::_dnsServerAddress;
 DhcpClass* EthernetClass::_dhcp = NULL;
 
@@ -36,60 +34,23 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
 	// Initialise the basic info
 	if (W5100.init() == 0) return 0;
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-
-	#if defined DEBUG_ETHERNET_CPP_BEGIN
-	PRINTLINE();
-	#endif
 	W5100.setMACAddress(mac);
-
-	#if defined DEBUG_ETHERNET_CPP_BEGIN
-	PRINTLINE();
-	#endif
 	W5100.setIPAddress(IPAddress(0,0,0,0).raw_address());
 	SPI.endTransaction();
 
-	#if defined DEBUG_ETHERNET_CPP_BEGIN
-	PRINTLINE();
-	#endif
 	// Now try to get our config info from a DHCP server
 	int ret = _dhcp->beginWithDHCP(mac, timeout, responseTimeout);
 	if (ret == 1) {
 		// We've successfully found a DHCP server and got our configuration
 		// info, so set things accordingly
 		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-
-		#if defined DEBUG_ETHERNET_CPP_BEGIN
-		PRINTLINE();
-		#endif
 		W5100.setIPAddress(_dhcp->getLocalIp().raw_address());
-		#if defined DEBUG_ETHERNET_CPP_BEGIN
-		PRINTLINE();
-		#endif
 		W5100.setGatewayIp(_dhcp->getGatewayIp().raw_address());
-		#if defined DEBUG_ETHERNET_CPP_BEGIN
-		PRINTLINE();
-		#endif
 		W5100.setSubnetMask(_dhcp->getSubnetMask().raw_address());
-		#if defined DEBUG_ETHERNET_CPP_BEGIN
-		PRINTLINE();
-		#endif
 		SPI.endTransaction();
-		#if defined DEBUG_ETHERNET_CPP_BEGIN
-		PRINTLINE();
-		#endif
 		_dnsServerAddress = _dhcp->getDnsServerIp();
-		#if defined DEBUG_ETHERNET_CPP_BEGIN
-		PRINTLINE();
-		#endif
 		socketPortRand(micros());
-		#if defined DEBUG_ETHERNET_CPP_BEGIN
-		PRINTLINE();
-		#endif
 	}
-
-	#if defined DEBUG_ETHERNET_CPP_BEGIN
-	PRINTLINE();
-	#endif
 	return ret;
 }
 
@@ -157,7 +118,6 @@ EthernetHardwareStatus EthernetClass::hardwareStatus()
 		case 51: return EthernetW5100;
 		case 52: return EthernetW5200;
 		case 55: return EthernetW5500;
-		case 61: return EthernetW6100;
 		default: return EthernetNoHardware;
 	}
 }

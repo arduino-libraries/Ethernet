@@ -22,9 +22,6 @@
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
-#define TIMESERVER 2
-//#define DEBUG_UDPNTPCLIENT_INO_SENDNTPPACKET
-
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 byte mac[] = {
@@ -33,11 +30,7 @@ byte mac[] = {
 
 unsigned int localPort = 8888;       // local port to listen for UDP packets
 
-#if TIMESERVER == 1
 const char timeServer[] = "time.nist.gov"; // time.nist.gov NTP server
-#elif TIMESERVER == 2
-const char timeServer[] = "time.bora.net"; // time.bora.net NTP server
-#endif
 
 const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
 
@@ -131,11 +124,6 @@ void loop() {
 
 // send an NTP request to the time server at the given address
 void sendNTPpacket(const char * address) {
-  
-  #if defined DEBUG_UDPNTPCLIENT_INO_SENDNTPPACKET
-  PRINTLINE();
-  #endif
-
   // set all bytes in the buffer to 0
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
   // Initialize values needed to form NTP request

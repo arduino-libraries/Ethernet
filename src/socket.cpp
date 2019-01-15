@@ -22,13 +22,6 @@
 #include "Ethernet.h"
 #include "utility/w5100.h"
 
-//#define DEBUG_SOCKET_CPP_WRITE_DATA
-//#define DEBUG_SOCKET_CPP_SOCKETLISTEN
-//#define DEBUG_SOCKET_CPP_SOCKETRECV
-//#define DEBUG_SOCKET_CPP_SOCKETSENDUDP
-//#define DEBUG_ETHERNET_UDP_CPP_SOCKETSTARTUDP
-//#define DEBUG_SOCKET_CPP_BEGINE
-
 #if ARDUINO >= 156 && !defined(ARDUINO_ARCH_PIC32)
 extern void yield(void);
 #else
@@ -82,11 +75,6 @@ uint8_t EthernetClass::socketBegin(uint8_t protocol, uint16_t port)
 	// look at all the hardware sockets, use any that are closed (unused)
 	for (s=0; s < maxindex; s++) {
 		status[s] = W5100.readSnSR(s);
-
-		#if defined DEBUG_SOCKET_CPP_BEGINE
-		PRINTVAR_HEX(status[s]);
-		#endif
-
 		if (status[s] == SnSR::CLOSED) goto makesocket;
 	}
 	//Serial.printf("W5000socket step2\n");
@@ -317,17 +305,9 @@ int EthernetClass::socketRecv(uint8_t s, uint8_t *buf, int16_t len)
 {
 	// Check how much data is available
 	int ret = state[s].RX_RSR;
-
-	#if defined DEBUG_SOCKET_CPP_SOCKETRECV
-	PRINTVAR_HEX(ret);
-	#endif
-
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	if (ret < len) {
 		uint16_t rsr = getSnRX_RSR(s);
-		#if defined DEBUG_SOCKET_CPP_SOCKETRECV
-		PRINTVAR_HEX(rsr);
-		#endif
 		ret = rsr - state[s].RX_inc;
 		state[s].RX_RSR = ret;
 		//Serial.printf("Sock_RECV, RX_RSR=%d, RX_inc=%d\n", ret, state[s].RX_inc);
@@ -335,9 +315,6 @@ int EthernetClass::socketRecv(uint8_t s, uint8_t *buf, int16_t len)
 	if (ret == 0) {
 		// No data available.
 		uint8_t status = W5100.readSnSR(s);
-		#if defined DEBUG_SOCKET_CPP_SOCKETRECV
-		PRINTVAR_HEX(status);
-		#endif
 		if ( status == SnSR::LISTEN || status == SnSR::CLOSED ||
 		  status == SnSR::CLOSE_WAIT ) {
 			// The remote end has closed its side of the connection,
@@ -347,9 +324,6 @@ int EthernetClass::socketRecv(uint8_t s, uint8_t *buf, int16_t len)
 			// The connection is still up, but there's no data waiting to be read
 			ret = -1;
 		}
-		#if defined DEBUG_SOCKET_CPP_SOCKETRECV
-		PRINTVAR_HEX(ret);
-		#endif
 	} else {
 		if (ret > len) ret = len; // more data available than buffer length
 		uint16_t ptr = state[s].RX_RD;
@@ -359,9 +333,6 @@ int EthernetClass::socketRecv(uint8_t s, uint8_t *buf, int16_t len)
 		state[s].RX_RSR -= ret;
 		uint16_t inc = state[s].RX_inc + ret;
 		if (inc >= 250 || state[s].RX_RSR == 0) {
-			#if defined DEBUG_SOCKET_CPP_SOCKETRECV
-			PRINTVAR_HEX(inc);
-			#endif
 			state[s].RX_inc = 0;
 			W5100.writeSnRX_RD(s, ptr);
 			W5100.execCmdSn(s, Sock_RECV);
@@ -426,33 +397,12 @@ static uint16_t getSnTX_FSR(uint8_t s)
 
 static void write_data(uint8_t s, uint16_t data_offset, const uint8_t *data, uint16_t len)
 {
-	#if defined DEBUG_SOCKET_CPP_WRITE_DATA
-	PRINTSTR("write_data");
-	#endif
-
 	uint16_t ptr = W5100.readSnTX_WR(s);
-	#if defined DEBUG_SOCKET_CPP_WRITE_DATA
-	PRINTVAR_HEX(ptr);
-	PRINTVAR_HEX(data_offset);
-	#endif
 	ptr += data_offset;
 	uint16_t offset = ptr & W5100.SMASK;
 	uint16_t dstAddr = offset + W5100.SBASE(s);
 
-	#if defined DEBUG_SOCKET_CPP_WRITE_DATA
-	PRINTVAR_HEX(dstAddr);
-	PRINTVAR_HEX(W5100.SBASE(s));
-	#endif
-
-	#if defined DEBUG_SOCKET_CPP_WRITE_DATA
-	PRINTVAR_HEX(offset);
-	PRINTVAR_HEXT(s, data_offset, len);
-	#endif
-
 	if (W5100.hasOffsetAddressMapping() || offset + len <= W5100.SSIZE) {
-		#if defined DEBUG_SOCKET_CPP_WRITE_DATA
-		PRINTVAR_HEXT(dstAddr, *data, len);
-		#endif
 		W5100.write(dstAddr, data, len);
 	} else {
 		// Wrap around circular buffer
@@ -462,11 +412,6 @@ static void write_data(uint8_t s, uint16_t data_offset, const uint8_t *data, uin
 	}
 	ptr += len;
 	W5100.writeSnTX_WR(s, ptr);
-
-	#if defined DEBUG_SOCKET_CPP_WRITE_DATA
-	PRINTVAR_HEX(offset);
-	PRINTVAR_HEXT(s, data_offset, len);
-	#endif
 }
 
 
@@ -553,58 +498,21 @@ uint16_t EthernetClass::socketBufferData(uint8_t s, uint16_t offset, const uint8
 
 bool EthernetClass::socketStartUDP(uint8_t s, uint8_t* addr, uint16_t port)
 {
-	#if defined DEBUG_ETHERNET_UDP_CPP_SOCKETSTARTUDP
-	PRINTLINE();
-	#endif
-
 	if ( ((addr[0] == 0x00) && (addr[1] == 0x00) && (addr[2] == 0x00) && (addr[3] == 0x00)) ||
 	  ((port == 0x00)) ) {
 		return false;
 	}
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-
-	#if defined DEBUG_ETHERNET_UDP_CPP_SOCKETSTARTUDP
-	PRINTLINE();
-	PRINTVAR_HEX(s);
-	PRINTVAR_HEX(addr[0]);
-	PRINTVAR_HEX(addr[1]);
-	PRINTVAR_HEX(addr[2]);
-	PRINTVAR_HEX(addr[3]);
-	#endif
-
 	W5100.writeSnDIPR(s, addr);
-
-	#if defined DEBUG_ETHERNET_UDP_CPP_SOCKETSTARTUDP
-	PRINTLINE();
-	#endif
-
 	W5100.writeSnDPORT(s, port);
-
-	#if defined DEBUG_ETHERNET_UDP_CPP_SOCKETSTARTUDP
-	PRINTLINE();
-	#endif
-
 	SPI.endTransaction();
-
-	#if defined DEBUG_ETHERNET_UDP_CPP_SOCKETSTARTUDP
-	PRINTLINE();
-	#endif
-
 	return true;
 }
 
 bool EthernetClass::socketSendUDP(uint8_t s)
 {
-	#if defined DEBUG_SOCKET_CPP_SOCKETSENDUDP
-	PRINTLINE();
-	#endif
-
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	W5100.execCmdSn(s, Sock_SEND);
-
-	#if defined DEBUG_SOCKET_CPP_SOCKETSENDUDP
-	PRINTLINE();
-	#endif
 
 	/* +2008.01 bj */
 	while ( (W5100.readSnIR(s) & SnIR::SEND_OK) != SnIR::SEND_OK ) {
@@ -620,17 +528,9 @@ bool EthernetClass::socketSendUDP(uint8_t s)
 		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	}
 
-	#if defined DEBUG_SOCKET_CPP_SOCKETSENDUDP
-	PRINTLINE();
-	#endif
-
 	/* +2008.01 bj */
 	W5100.writeSnIR(s, SnIR::SEND_OK);
 	SPI.endTransaction();
-
-	#if defined DEBUG_SOCKET_CPP_SOCKETSENDUDP
-	PRINTLINE();
-	#endif
 
 	//Serial.printf("sendUDP ok\n");
 	/* Sent ok */
