@@ -137,7 +137,7 @@ enum EthernetHardwareStatus {
 	EthernetW5100,
 	EthernetW5200,
 	EthernetW5500,
-	EthernetW6100
+	EthernetW6100,
 	EthernetW5100S
 };
 
