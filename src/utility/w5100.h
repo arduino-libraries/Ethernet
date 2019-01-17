@@ -270,10 +270,10 @@ public:
   __GP_REGISTER16(UPORT,  0x002E, 0x0000);    // Unreachable Port address in UDP mode (W5100 only)
   __GP_REGISTER8 (VERSIONR_W5200, 0x001F, 0x0000);   // Chip Version Register (W5200 only)
   __GP_REGISTER8 (VERSIONR_W5500, 0x0039, 0x0000);   // Chip Version Register (W5500 only)
-  __GP_REGISTER8 (VERSIONR_W5100S,     0x0080);   // Chip Version Register (W5100S only)
+  __GP_REGISTER8 (VERSIONR_W5100S, 0x0080, 0x0000);   // Chip Version Register (W5100S only)
   __GP_REGISTER8 (PSTATUS_W5200, 0x0035, 0x0000);    // PHY Status
   __GP_REGISTER8 (PHYCFGR_W5500, 0x002E, 0x0000);    // PHY Configuration register, default: 10111xxx
-  __GP_REGISTER8 (PHYCFGR_W5100S,     0x003C);    // PHY Status
+  __GP_REGISTER8 (PHYCFGR_W5100S, 0x003C, 0x0000);    // PHY Status
   
   // For W6100
   __GP_REGISTER8 (SYCR0, 0x0000, 0x2004); // System Command Register
