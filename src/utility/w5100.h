@@ -48,6 +48,11 @@
 #define SPI_ETHERNET_SETTINGS SPISettings(8000000, MSBFIRST, SPI_MODE0)
 #endif
 
+#if defined(ARDUINO_spresense_ast)
+#undef SPI_ETHERNET_SETTINGS
+#define SPI_ETHERNET_SETTINGS SPISettings(14000000, MSBFIRST, SPI_MODE3)
+#endif
+
 
 typedef uint8_t SOCKET;
 
@@ -431,6 +436,16 @@ private:
 	}
 	inline static void resetSS() {
 		*(ss_pin_reg+6) = ss_pin_mask;
+	}
+#elif defined(ARDUINO_spresense_ast)
+	inline static void initSS() {
+		return;
+	}
+	inline static void setSS() {
+		return;
+	}
+	inline static void resetSS() {
+		return;
 	}
 #else
 	inline static void initSS() {

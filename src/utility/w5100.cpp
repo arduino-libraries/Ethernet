@@ -294,16 +294,29 @@ W5100Linkstatus W5100Class::getLinkStatus()
 
 uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 {
+	#if defined(ARDUINO_spresense_ast)
+	uint8_t *cmd = (uint8_t *) malloc(4 + len);	
+	#else
 	uint8_t cmd[8];
+	#endif
 
 	if (chip == 51) {
 		for (uint16_t i=0; i<len; i++) {
 			setSS();
+			#if defined(ARDUINO_spresense_ast)
+			cmd[0] = 0x0F;
+			cmd[1] = addr >> 8;
+			cmd[2] = addr & 0xFF;
+			cmd[3] = buf[i];
+			SPI.transfer(cmd, 4);
+			addr++;
+			#else
 			SPI.transfer(0xF0);
 			SPI.transfer(addr >> 8);
 			SPI.transfer(addr & 0xFF);
 			addr++;
 			SPI.transfer(buf[i]);
+			#endif
 			resetSS();
 		}
 	} else if (chip == 52) {
@@ -312,6 +325,10 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 		cmd[1] = addr & 0xFF;
 		cmd[2] = ((len >> 8) & 0x7F) | 0x80;
 		cmd[3] = len & 0xFF;
+		#if defined(ARDUINO_spresense_ast)
+		memcpy(&cmd[4], buf, len);
+		SPI.transfer(cmd, 4 + len);
+		#else
 		SPI.transfer(cmd, 4);
 #ifdef SPI_HAS_TRANSFER_BUF
 		SPI.transfer(buf, NULL, len);
@@ -320,6 +337,7 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 		for (uint16_t i=0; i < len; i++) {
 			SPI.transfer(buf[i]);
 		}
+		#endif
 #endif
 		resetSS();
 	} else { // chip == 55
@@ -368,6 +386,10 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 			}
 			SPI.transfer(cmd, len + 3);
 		} else {
+			#if defined(ARDUINO_spresense_ast)
+			memcpy(&cmd[3], buf, len);
+			SPI.transfer(cmd, 3 + len);		
+			#else
 			SPI.transfer(cmd, 3);
 #ifdef SPI_HAS_TRANSFER_BUF
 			SPI.transfer(buf, NULL, len);
@@ -376,26 +398,46 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 			for (uint16_t i=0; i < len; i++) {
 				SPI.transfer(buf[i]);
 			}
+			#endif
 #endif
 		}
 		resetSS();
 	}
+
+	#if defined(ARDUINO_spresense_ast)
+	free(cmd);
+	#endif
+
 	return len;
 }
 
 uint16_t W5100Class::read(uint16_t addr, uint8_t *buf, uint16_t len)
 {
+	#if defined(ARDUINO_spresense_ast)
+	uint8_t *cmd = (uint8_t *) malloc(4 + len);	
+	#else
 	uint8_t cmd[4];
+	#endif
 
 	if (chip == 51) {
 		for (uint16_t i=0; i < len; i++) {
 			setSS();
 			#if 1
+			#if defined(ARDUINO_spresense_ast)
+			cmd[0] = 0x0F;
+			cmd[1] = addr >> 8;
+			cmd[2] = addr & 0xFF;
+			cmd[3] = 0;
+			SPI.transfer(cmd, 4);
+			buf[i] = cmd[3];
+			addr++;
+			#else
 			SPI.transfer(0x0F);
 			SPI.transfer(addr >> 8);
 			SPI.transfer(addr & 0xFF);
 			addr++;
 			buf[i] = SPI.transfer(0);
+			#endif
 			#else
 			cmd[0] = 0x0F;
 			cmd[1] = addr >> 8;
@@ -413,9 +455,15 @@ uint16_t W5100Class::read(uint16_t addr, uint8_t *buf, uint16_t len)
 		cmd[1] = addr & 0xFF;
 		cmd[2] = (len >> 8) & 0x7F;
 		cmd[3] = len & 0xFF;
+		#if defined(ARDUINO_spresense_ast)
+		memset(&cmd[4], 0, len);
+		SPI.transfer(cmd, 4 + len);
+		memcpy(buf, &cmd[4], len);
+		#else
 		SPI.transfer(cmd, 4);
 		memset(buf, 0, len);
 		SPI.transfer(buf, len);
+		#endif
 		resetSS();
 	} else { // chip == 55
 		setSS();
@@ -457,11 +505,22 @@ uint16_t W5100Class::read(uint16_t addr, uint8_t *buf, uint16_t len)
 			cmd[2] = ((addr >> 6) & 0xE0) | 0x18; // 2K buffers
 			#endif
 		}
+		#if defined(ARDUINO_spresense_ast)
+		memset(&cmd[3], 0, len);
+		SPI.transfer(cmd, 3 + len);
+		memcpy(buf, &cmd[3], len);
+		#else
 		SPI.transfer(cmd, 3);
 		memset(buf, 0, len);
 		SPI.transfer(buf, len);
+		#endif
 		resetSS();
 	}
+
+	#if defined(ARDUINO_spresense_ast)
+	free(cmd);
+	#endif
+
 	return len;
 }
 
