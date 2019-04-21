@@ -219,6 +219,11 @@ public:
 	uint8_t status();
 	virtual int connect(IPAddress ip, uint16_t port);
 	virtual int connect(const char *host, uint16_t port);
+	// 20190421 https://kmpelectronics.eu/ Plamen Kovandjiev - We added support for ESP32.
+#ifdef ESP32
+	virtual int connect(IPAddress ip, uint16_t port, int timeout);
+	virtual int connect(const char *host, uint16_t port, int timeout);
+#endif
 	virtual int availableForWrite(void);
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buf, size_t size);
@@ -253,11 +258,18 @@ private:
 class EthernetServer : public Server {
 private:
 	uint16_t _port;
+	// 20190421 https://kmpelectronics.eu/ Plamen Kovandjiev - We added support for ESP32.
+	void init();
 public:
 	EthernetServer(uint16_t port) : _port(port) { }
 	EthernetClient available();
 	EthernetClient accept();
+	// 20190421 https://kmpelectronics.eu/ Plamen Kovandjiev - We added support for ESP32.
+#ifdef ESP32
+	virtual void begin(uint16_t port = 0);
+#else
 	virtual void begin();
+#endif
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buf, size_t size);
 	virtual operator bool();
