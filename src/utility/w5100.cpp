@@ -331,7 +331,7 @@ W5100Linkstatus W5100Class::getLinkStatus()
 		phystatus = readPHYCFGR_W5500();
 		SPI.endTransaction();
 		if (phystatus & 0x01) return LINK_ON;
-		return LINK_OFF;	  
+		return LINK_OFF;
 	  default:
 		return UNKNOWN;
 	}
