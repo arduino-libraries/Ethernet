@@ -61,15 +61,22 @@ public:
   static const uint8_t PPPOE  = 0x05;
   static const uint8_t ND     = 0x20;
   static const uint8_t MULTI  = 0x80;
+  static const uint8_t TCP6   = 0x29;
+  static const uint8_t UDP6   = 0x0A;
+  static const uint8_t IPRAW6 = 0x0B;
+  static const uint8_t TCPD   = 0x2D;
+  static const uint8_t UDPD   = 0x0E;
 };
 
 enum SockCMD {
   Sock_OPEN      = 0x01,
   Sock_LISTEN    = 0x02,
   Sock_CONNECT   = 0x04,
+  Sock_CONNECT6  = 0x84,
   Sock_DISCON    = 0x08,
   Sock_CLOSE     = 0x10,
   Sock_SEND      = 0x20,
+  Sock_SEND6     = 0xA0,
   Sock_SEND_MAC  = 0x21,
   Sock_SEND_KEEP = 0x22,
   Sock_RECV      = 0x40
@@ -143,6 +150,18 @@ public:
   inline void setRetransmissionTime(uint16_t timeout) { writeRTR(timeout); }
   inline void setRetransmissionCount(uint8_t retry) { writeRCR(retry); }
 
+  inline void setLinklocalAddress(const uint8_t * addr) { writeLLAR(addr); }
+  inline void getLinklocalAddress(uint8_t * addr) { readLLAR(addr); }
+
+  inline void setGlobalunicastAddress(const uint8_t * addr) { writeGUAR(addr); }
+  inline void getGlobalunicastAddress(uint8_t * addr) { readGUAR(addr); }
+
+  inline void setSubnetMask6(const uint8_t * addr) { writeSUB6R(addr); }
+  inline void getSubnetMask6(uint8_t * addr) { readSUB6R(addr); }
+
+  inline void setGateway6(const uint8_t * addr) { writeGA6R(addr); }
+  inline void getGateway6(uint8_t * addr) { readGA6R(addr); }
+
   static void execCmdSn(SOCKET s, SockCMD _cmd);
 
 
@@ -196,6 +215,21 @@ public:
 #define W6100_UDP_HEADER_MUL	(1<<5)
 #define W6100_UDP_HEADER_GUA	(0<<3)
 #define W6100_UDP_HEADER_LLA	(1<<3)
+
+#define W6100_SLCR_NS         (1<<2)
+#define W6100_SLCR_RS         (1<<1)
+#define W6100_SLIR_TIOUT	    (1<<7)
+#define W6100_ICMP6BLK_RA     (1<<2)
+
+#define W6100_SnESR_TCP4      (0<<2)
+#define W6100_SnESR_TCP6      (1<<2)
+
+#define W6100_SnMR_TCP4      ( 1<<0)
+#define W6100_SnMR_TCPD      (13<<0)
+
+#define W6100_SnPSR_AUTO      (0<<0)
+#define W6100_SnPSR_LLA       (2<<0)
+#define W6100_SnPSR_GUA       (3<<0)
 
 #define __GP_REGISTER8(name, address, adrss_w6100)        \
   static inline void write##name(uint8_t _data) {   \
@@ -282,6 +316,19 @@ public:
   __GP_REGISTER8 (PHYCFGR_W6100, 0x0000, 0x3000); // PHY Status
   __GP_REGISTER8 (VERSIONR_W6100, 0x0000, 0x0000);  // Chip Version Register
   __GP_REGISTER8 (CVERSIONR_W6100, 0x0000, 0x0002); // Chip Version Register
+
+  __GP_REGISTER_N(LLAR, 0x0000, 0x4140, 16); // Link Local Address Register
+  __GP_REGISTER_N(GUAR, 0x0000, 0x4150, 16); // Global Unicast Address Register
+  __GP_REGISTER_N(SUB6R, 0x0000, 0x4160, 16); // IPv6 Subnet Prefix Register
+  __GP_REGISTER_N(GA6R, 0x0000, 0x4170, 16); // IPv6 Gateway Address Register
+
+  __GP_REGISTER16 (SLRTR, 0x0000, 0x4208); // SOCKET-less Retransmission Time Register
+  __GP_REGISTER8 (SLRCR, 0x0000, 0x420C); // SOCKET-less Retransmission Count Register
+  __GP_REGISTER_N(SLDIP6R, 0x0000, 0x4180, 16); // SOCKET-less Destination IPv6 Address Register
+  __GP_REGISTER8 (SLCR, 0x0000, 0x2130); // SOCKET-less Command Register
+  __GP_REGISTER8 (SLIR, 0x0000, 0x2102); // SOCKET-less Interrupt Register
+  __GP_REGISTER8 (SLIRCLR, 0x0000, 0x2128); // SOCKET-less Interrupt Clear Register
+  __GP_REGISTER8 (ICMP6BLKR, 0x0000, 0x41F0); // SOCKET-less Interrupt Clear Register
 
 #undef __GP_REGISTER8
 #undef __GP_REGISTER16
@@ -389,9 +436,14 @@ public:
   __SOCKET_REGISTER16(SnTX_FSR,   0x0020, 0x0204)        // TX Free Size
   __SOCKET_REGISTER16(SnTX_RD,    0x0022, 0x0208)        // TX Read Pointer
   __SOCKET_REGISTER16(SnTX_WR,    0x0024, 0x020C)        // TX Write Pointer
-  __SOCKET_REGISTER16(SnRX_RSR,   0x0026, 0x0224)        // RX Free Size
+  __SOCKET_REGISTER16(SnRX_RSR,   0x0026, 0x0224)        // RX Received Size Register
   __SOCKET_REGISTER16(SnRX_RD,    0x0028, 0x0228)        // RX Read Pointer
   __SOCKET_REGISTER16(SnRX_WR,    0x002A, 0x022C)        // RX Write Pointer (supported?)
+
+  __SOCKET_REGISTER_N(SnDIP6R,    0x0000, 0x0130, 16)     // Destination IP6 Addr
+  __SOCKET_REGISTER8(SnPNR,    0x0000, 0x0100)            // IP Protocaol Number Register
+  __SOCKET_REGISTER8(SnESR,    0x0000, 0x0031)            // SOCKET n Externsion Status Register
+  __SOCKET_REGISTER8(SnPSR,    0x0000, 0x0004)            // SOCKET n Prefer Source IPv6 Address Register
 
 #undef __SOCKET_REGISTER8
 #undef __SOCKET_REGISTER16
