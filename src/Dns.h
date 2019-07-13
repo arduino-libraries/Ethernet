@@ -7,12 +7,8 @@
 
 #include "Ethernet.h"
 
-#ifndef DNS_TIMEOUT
-#define DNS_TIMEOUT 5000
-#endif
-#ifndef DNS_RETRIES
-#define DNS_RETRIES 3
-#endif
+#define DNS_TIMEOUT 1000
+#define DNS_RETRIES 2
 
 class DNSClient
 {
