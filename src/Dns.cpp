@@ -85,7 +85,7 @@ int DNSClient::inet_aton(const char* address, IPAddress& result)
 	return 1;
 }
 
-int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t timeout)
+int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t dnsTimeout, utin8_t dnsRetries)
 {
 	int ret = 0;
 
@@ -99,7 +99,7 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t
 	if (iDNSServer == INADDR_NONE) {
 		return INVALID_SERVER;
 	}
-	
+
 	// Find a socket to use
 	if (iUdp.begin(1024+(millis() & 0xF)) == 1) {
 		// Try up to three times
@@ -117,7 +117,8 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t
 					// Now wait for a response
 					int wait_retries = 0;
 					ret = TIMED_OUT;
-					while ((wait_retries < 3) && (ret == TIMED_OUT)) {
+					while ((wait_retries < dnsRetries) && (ret == TIMED_OUT)) 
+					{
 						ret = ProcessResponse(timeout, aResult);
 						wait_retries++;
 					}
@@ -126,11 +127,9 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t
 		}
 		retries++;
 		//}
-
 		// We're done with the socket now
 		iUdp.stop();
 	}
-
 	return ret;
 }
 

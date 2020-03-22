@@ -58,7 +58,7 @@ void EthernetUDP::stop()
 	}
 }
 
-int EthernetUDP::beginPacket(const char *host, uint16_t port)
+int EthernetUDP::beginPacket(const char *host, uint16_t port, uint16_t dnsTimeout, uint8_t dnsRetries)
 {
 	// Look up the host first
 	int ret = 0;
@@ -66,7 +66,8 @@ int EthernetUDP::beginPacket(const char *host, uint16_t port)
 	IPAddress remote_addr;
 
 	dns.begin(Ethernet.dnsServerIP());
-	ret = dns.getHostByName(host, remote_addr);
+
+	ret = dns.getHostByName(host, remote_addr, dnsTimeout, dnsRetries);
 	if (ret != 1) return ret;
 	return beginPacket(remote_addr, port);
 }
