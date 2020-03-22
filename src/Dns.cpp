@@ -85,7 +85,7 @@ int DNSClient::inet_aton(const char* address, IPAddress& result)
 	return 1;
 }
 
-int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t dnsTimeout, utin8_t dnsRetries)
+int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t dnsTimeout, uint8_t dnsRetries)
 {
 	int ret = 0;
 
@@ -119,7 +119,7 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t
 					ret = TIMED_OUT;
 					while ((wait_retries < dnsRetries) && (ret == TIMED_OUT)) 
 					{
-						ret = ProcessResponse(timeout, aResult);
+						ret = ProcessResponse(dnsTimeout, aResult);
 						wait_retries++;
 					}
 				}
