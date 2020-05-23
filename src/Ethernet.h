@@ -52,6 +52,8 @@
 #include "Client.h"
 #include "Server.h"
 #include "Udp.h"
+#include "SPI.h"
+
 
 enum EthernetLinkStatus {
 	Unknown,
@@ -74,6 +76,7 @@ class DhcpClass;
 class EthernetClass {
 private:
 	static IPAddress _dnsServerAddress;
+
 	static DhcpClass* _dhcp;
 public:
 	// Initialise the Ethernet shield to use the provided MAC address and
@@ -84,12 +87,14 @@ public:
 	static EthernetLinkStatus linkStatus();
 	static EthernetHardwareStatus hardwareStatus();
 
-	// Manaul configuration
+	// Manual configuration
 	static void begin(uint8_t *mac, IPAddress ip);
 	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns);
 	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway);
 	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet);
+	
 	static void init(uint8_t sspin = 10);
+	static void init(SPIClass& spi_device, uint8_t sspin);
 
 	static void MACAddress(uint8_t *mac_address);
 	static IPAddress localIP();
