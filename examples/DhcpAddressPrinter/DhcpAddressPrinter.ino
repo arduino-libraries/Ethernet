@@ -23,7 +23,7 @@
 //#define MY_SERIAL Serial1 // Serial 1
 
 //SPIClass SPI_1((uint8_t)PA7, (uint8_t)PA6, (uint8_t)PA5);  // SPI1 on STM32F103xB Bluepill 
-SPIClass SPI_2(PB15, PB14, PB13);     // SPI2 on STM32F103xB Bluepill 
+//SPIClass SPI_2(PB15, PB14, PB13);     // SPI2 on STM32F103xB Bluepill 
 
 #include <Ethernet.h>
 
@@ -50,7 +50,7 @@ void setup() {
   //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
     
   //Ethernet.init((uint8_t)PA4);  // SPI1 on STM32 Bluepill 
-  Ethernet.init(SPI_2, PB12);  // SPI2 on STM32 Bluepill 
+  //Ethernet.init(SPI_2, PB12);  // SPI2 on STM32 Bluepill 
   
   // start the Ethernet connection:
   MY_SERIAL.println("Initialize Ethernet with DHCP:");
