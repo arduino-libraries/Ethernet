@@ -298,6 +298,7 @@ public:
 private:
   static uint8_t chip;
   static uint8_t ss_pin;
+  static SPIClass* spi_device;
   static uint8_t softReset(void);
   static uint8_t isW5100(void);
   static uint8_t isW5200(void);
@@ -332,6 +333,13 @@ public:
     return false;
   }
   static void setSS(uint8_t pin) { ss_pin = pin; }
+  static void setSPI(SPIClass& spi, uint8_t pin) { 
+		spi_device = &spi; 
+		ss_pin = pin;
+	}
+  static SPIClass* getSPI() { 
+		return  spi_device; 
+	}
 
 private:
 #if defined(__AVR__)
