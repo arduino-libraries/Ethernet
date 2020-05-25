@@ -222,13 +222,21 @@ public:
 #ifdef ESP32
 	int connect(IPAddress ip, uint16_t port, int timeout)
 	{
-		connect(ip, port);
+		//possible implemented return values of return are only 0 (error) or 1 (ok).
+		if(!connect(ip, port)) {
+			//indiciate error
+			return 0;
+		}
 		setConnectionTimeout(timeout);
+		return 1;
 	}
 	int connect(const char* host, uint16_t port, int timeout)
 	{
-		connect(host, port);
+		if(!connect(host, port)) {
+			return 0;
+		}
 		setConnectionTimeout(timeout);
+		return 1;
 	}
 #endif
 	virtual int availableForWrite(void);
