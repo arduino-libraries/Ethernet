@@ -244,3 +244,6 @@ void EthernetClass::setRetransmissionCount(uint8_t num)
 
 
 EthernetClass Ethernet;
+
+void ethernetIdle(void) __attribute__ ((weak));
+void ethernetIdle(void) {delay(10);};
