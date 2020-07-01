@@ -6,11 +6,6 @@
 #include "Dhcp.h"
 #include "utility/w5100.h"
 
-int DhcpClass::beginWithDHCP(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
-{
-	return beginWithDHCP(mac, NULL, timeout, responseTimeout);
-}
-
 int DhcpClass::beginWithDHCP(uint8_t *mac, const char *hostname, unsigned long timeout, unsigned long responseTimeout)
 {
 	_dhcpLeaseTime=0;
@@ -25,12 +20,13 @@ int DhcpClass::beginWithDHCP(uint8_t *mac, const char *hostname, unsigned long t
 
 	if (NULL == hostname)
 	{
-		strcpy(_dhcpHostname, HOST_NAME);
-		int offset = strlen(HOST_NAME);
+		strlcpy(_dhcpHostname, HOST_NAME, MAX_HOST_NAME_LENGTH - 5);
+		_dhcpHostname[MAX_HOST_NAME_LENGTH -  4] = '\0';
+		int offset = strlen(_dhcpHostname);
 		printByte((char*)&(_dhcpHostname[offset + 0]), mac[3]);
 		printByte((char*)&(_dhcpHostname[offset + 2]), mac[4]);
 		printByte((char*)&(_dhcpHostname[offset + 4]), mac[5]);
-		_dhcpHostname[offset + 6] = 0;
+		_dhcpHostname[offset + 6] = '\0';
 	}
 	else
 	{
@@ -208,7 +204,7 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 	// OPT - host name
 	buffer[16] = hostName;
 	buffer[17] = strlen(_dhcpHostname); // length of hostname
-	strcpy((char*)&(buffer[18]), _dhcpHostname);
+	strlcpy((char*)&(buffer[18]), _dhcpHostname, MAX_HOST_NAME_LENGTH + 1);
 
 	//put data in W5100 transmit buffer
 	_dhcpUdpSocket.write(buffer, 30);

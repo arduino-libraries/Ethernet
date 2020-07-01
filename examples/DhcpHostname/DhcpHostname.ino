@@ -12,9 +12,10 @@
 
 // MAC address
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
+  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
-// Hostname
+
+// Hostname, max length 12 characters, ASCII only
 const char* hostname = "myarduino";
 
 // Initialize the Ethernet client library
