@@ -412,10 +412,12 @@ private:
 		pinMode(ss_pin, OUTPUT);
 	}
 	inline static void setSS() {
-		GPOC = ss_pin_mask;
+		//GPOC = ss_pin_mask;
+		digitalWrite(ss_pin, LOW);
 	}
 	inline static void resetSS() {
-		GPOS = ss_pin_mask;
+		//GPOS = ss_pin_mask;
+		digitalWrite(ss_pin, HIGH);
 	}
 
 #elif defined(__SAMD21G18A__)
