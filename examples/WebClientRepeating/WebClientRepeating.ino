@@ -1,7 +1,7 @@
 /*
   Repeating Web client
 
- This sketch connects to a a web server and makes a request
+ This sketch connects to a web server and makes a request
  using a Wiznet Ethernet shield. You can use the Arduino Ethernet shield, or
  the Adafruit Ethernet shield, either one will work, as long as it's got
  a Wiznet Ethernet module on board.
