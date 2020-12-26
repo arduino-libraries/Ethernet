@@ -49,6 +49,13 @@
 #endif
 
 
+// Industruino D21G can't use W5500 faster than 4 MHz
+#if defined(INDIO_H_)
+#undef SPI_ETHERNET_SETTINGS
+#define SPI_ETHERNET_SETTINGS SPISettings(4000000, MSBFIRST, SPI_MODE0)
+#endif
+
+
 typedef uint8_t SOCKET;
 
 class SnMR {
@@ -140,8 +147,9 @@ public:
   inline void setIPAddress(const uint8_t * addr) { writeSIPR(addr); }
   inline void getIPAddress(uint8_t * addr) { readSIPR(addr); }
 
-  inline void setRetransmissionTime(uint16_t timeout) { writeRTR(timeout); }
-  inline void setRetransmissionCount(uint8_t retry) { writeRCR(retry); }
+  inline void setRetransmissionTime(uint16_t timeout) { if (chip == 55) writeRTR_W5500(timeout); else writeRTR_W5100(timeout); }
+  inline void setRetransmissionCount(uint8_t retry) { if (chip == 55) writeRCR_W5500(retry); else writeRCR_W5100(retry); }
+
 
   static void execCmdSn(SOCKET s, SockCMD _cmd);
 
@@ -190,26 +198,35 @@ public:
   static W5100Linkstatus getLinkStatus();
 
 public:
-  __GP_REGISTER8 (MR,     0x0000);    // Mode
-  __GP_REGISTER_N(GAR,    0x0001, 4); // Gateway IP address
-  __GP_REGISTER_N(SUBR,   0x0005, 4); // Subnet mask address
-  __GP_REGISTER_N(SHAR,   0x0009, 6); // Source MAC address
-  __GP_REGISTER_N(SIPR,   0x000F, 4); // Source IP address
-  __GP_REGISTER8 (IR,     0x0015);    // Interrupt
-  __GP_REGISTER8 (IMR,    0x0016);    // Interrupt Mask
-  __GP_REGISTER16(RTR,    0x0017);    // Timeout address
-  __GP_REGISTER8 (RCR,    0x0019);    // Retry count
-  __GP_REGISTER8 (RMSR,   0x001A);    // Receive memory size (W5100 only)
-  __GP_REGISTER8 (TMSR,   0x001B);    // Transmit memory size (W5100 only)
-  __GP_REGISTER8 (PATR,   0x001C);    // Authentication type address in PPPoE mode
-  __GP_REGISTER8 (PTIMER, 0x0028);    // PPP LCP Request Timer
-  __GP_REGISTER8 (PMAGIC, 0x0029);    // PPP LCP Magic Number
-  __GP_REGISTER_N(UIPR,   0x002A, 4); // Unreachable IP address in UDP mode (W5100 only)
-  __GP_REGISTER16(UPORT,  0x002E);    // Unreachable Port address in UDP mode (W5100 only)
-  __GP_REGISTER8 (VERSIONR_W5200,0x001F);   // Chip Version Register (W5200 only)
-  __GP_REGISTER8 (VERSIONR_W5500,0x0039);   // Chip Version Register (W5500 only)
-  __GP_REGISTER8 (PSTATUS_W5200,     0x0035);    // PHY Status
-  __GP_REGISTER8 (PHYCFGR_W5500,     0x002E);    // PHY Configuration register, default: 10111xxx
+  __GP_REGISTER8 (MR,          0x0000);      // Mode
+  __GP_REGISTER_N(GAR,           0x0001, 4); // Gateway IP address
+  __GP_REGISTER_N(SUBR,          0x0005, 4); // Subnet mask address
+  __GP_REGISTER_N(SHAR,          0x0009, 6); // Source MAC address
+  __GP_REGISTER_N(SIPR,          0x000F, 4); // Source IP address
+  __GP_REGISTER8 (IR,            0x0015);    // Interrupt
+  __GP_REGISTER8 (IMR,           0x0016);    // Interrupt Mask
+  __GP_REGISTER16(RTR_W5100,     0x0017);    // Timeout address
+  __GP_REGISTER16(RTR_W5500,     0x0019);    // Timeout address (W5500 only)
+  __GP_REGISTER8 (RCR_W5100,     0x0019);    // Retry count
+  __GP_REGISTER8 (RCR_W5500,     0x001B);    // Retry count (W5500 only)
+  __GP_REGISTER8 (RMSR,          0x001A);    // Receive memory size (W5100 only)
+  __GP_REGISTER8 (TMSR,          0x001B);    // Transmit memory size (W5100 only)
+  __GP_REGISTER8 (PATR,          0x001C);    // Authentication type address in PPPoE mode
+  __GP_REGISTER8 (PTIMER_W5100,  0x0028);    // PPP LCP Request Timer
+  __GP_REGISTER8 (PTIMER_W5500,  0x001C);    // PPP LCP Request Timer (W5500 only)
+  __GP_REGISTER8 (PMAGIC_W5100,  0x0029);    // PPP LCP Magic Number
+  __GP_REGISTER8 (PMAGIC_W5500,  0x001D);    // PPP LCP Magic Number (W5500 only)
+  __GP_REGISTER_N(UIPR_W5100,    0x002A, 4); // Unreachable IP address in UDP mode (W5100 only)
+  __GP_REGISTER_N(UIPR_W5500,    0x0028, 4); // Unreachable IP address in UDP mode (W5500 only)
+  __GP_REGISTER16(UPORT_W5100,   0x002E);    // Unreachable Port address in UDP mode (W5100 only)
+  __GP_REGISTER16(UPORT_W5500,   0x002C);    // Unreachable Port address in UDP mode (W5500 only)
+  __GP_REGISTER8 (VERSIONR_W5200,0x001F);    // Chip Version Register (W5200 only)
+  __GP_REGISTER8 (VERSIONR_W5500,0x0039);    // Chip Version Register (W5500 only)
+  __GP_REGISTER8 (PSTATUS_W5200, 0x0035);    // PHY Status
+  __GP_REGISTER8 (PHYCFGR_W5500, 0x002E);    // PHY Configuration register, default: 10111xxx
+  __GP_REGISTER_N(PHAR,          0x001E, 6); // PPP Destination MAC address
+  __GP_REGISTER16(PSID,          0x0024);    // PPP Session ID
+  __GP_REGISTER16(PMRU,          0x0026);    // PPP Maximum Segment Size
 
 
 #undef __GP_REGISTER8
