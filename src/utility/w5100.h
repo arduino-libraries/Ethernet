@@ -203,9 +203,12 @@ public:
   __GP_REGISTER_N(SUBR,          0x0005, 4); // Subnet mask address
   __GP_REGISTER_N(SHAR,          0x0009, 6); // Source MAC address
   __GP_REGISTER_N(SIPR,          0x000F, 4); // Source IP address
+  __GP_REGISTER16(INTLEVEL,      0x0013);    // Interrupt Low Level Timer
   __GP_REGISTER8 (IR,            0x0015);    // Interrupt
   __GP_REGISTER8 (IMR,           0x0016);    // Interrupt Mask
+  __GP_REGISTER8 (SIR,           0x0017);    // Socket Interrupt (W5500 only)
   __GP_REGISTER16(RTR_W5100,     0x0017);    // Timeout address
+  __GP_REGISTER8 (SIMR,          0x0018);    // Socket Interrupt Mask 
   __GP_REGISTER16(RTR_W5500,     0x0019);    // Timeout address (W5500 only)
   __GP_REGISTER8 (RCR_W5100,     0x0019);    // Retry count
   __GP_REGISTER8 (RCR_W5500,     0x001B);    // Retry count (W5500 only)
@@ -306,6 +309,9 @@ public:
   __SOCKET_REGISTER16(SnRX_RSR,   0x0026)        // RX Free Size
   __SOCKET_REGISTER16(SnRX_RD,    0x0028)        // RX Read Pointer
   __SOCKET_REGISTER16(SnRX_WR,    0x002A)        // RX Write Pointer (supported?)
+  __SOCKET_REGISTER8(Sn_IMR,      0x002C)        // Interrupt Mask (W5500 only)
+  __SOCKET_REGISTER16(SnFRAG,     0x002D)        // Fragment Offset in IP header (W5500 only)
+  __SOCKET_REGISTER8(Sn_KPALVTR,  0x002F)        // Keep alive timer (W5500 only)
 
 #undef __SOCKET_REGISTER8
 #undef __SOCKET_REGISTER16
