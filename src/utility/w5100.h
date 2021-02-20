@@ -16,6 +16,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
+#include <util.h>
 
 // Safe for all chips
 #define SPI_ETHERNET_SETTINGS SPISettings(14000000, MSBFIRST, SPI_MODE0)
@@ -33,7 +34,6 @@
 #error "Ethernet.h must be included before w5100.h"
 #endif
 
-
 // Arduino 101's SPI can not run faster than 8 MHz.
 #if defined(ARDUINO_ARCH_ARC32)
 #undef SPI_ETHERNET_SETTINGS
@@ -49,8 +49,7 @@
 #endif
 
 
-// Industruino D21G can't use W5500 faster than 4 MHz
-#if defined(INDIO_H_)
+#if defined(INDUSTRUINO)
 #undef SPI_ETHERNET_SETTINGS
 #define SPI_ETHERNET_SETTINGS SPISettings(4000000, MSBFIRST, SPI_MODE0)
 #endif
@@ -150,7 +149,6 @@ public:
   inline void setRetransmissionTime(uint16_t timeout) { if (chip == 55) writeRTR_W5500(timeout); else writeRTR_W5100(timeout); }
   inline void setRetransmissionCount(uint8_t retry) { if (chip == 55) writeRCR_W5500(retry); else writeRCR_W5100(retry); }
 
-
   static void execCmdSn(SOCKET s, SockCMD _cmd);
 
 
@@ -230,6 +228,7 @@ public:
   __GP_REGISTER_N(PHAR,          0x001E, 6); // PPP Destination MAC address
   __GP_REGISTER16(PSID,          0x0024);    // PPP Session ID
   __GP_REGISTER16(PMRU,          0x0026);    // PPP Maximum Segment Size
+
 
 
 #undef __GP_REGISTER8
@@ -320,8 +319,8 @@ public:
 
 private:
   static uint8_t chip;
-  static uint8_t ss_pin;
   static uint8_t softReset(void);
+  static uint8_t ss_pin;
   static uint8_t isW5100(void);
   static uint8_t isW5200(void);
   static uint8_t isW5500(void);
@@ -471,23 +470,5 @@ private:
 extern W5100Class W5100;
 
 
-
-#endif
-
-#ifndef UTIL_H
-#define UTIL_H
-
-#ifndef htons
-
-#define htons(x) ( (((x)<<8)&0xFF00) | (((x)>>8)&0xFF) )
-#define ntohs(x) htons(x)
-
-#define htonl(x) ( ((x)<<24 & 0xFF000000UL) | \
-                   ((x)<< 8 & 0x00FF0000UL) | \
-                   ((x)>> 8 & 0x0000FF00UL) | \
-                   ((x)>>24 & 0x000000FFUL) )
-#define ntohl(x) htonl(x)
-
-#endif // !defined(htons)
 
 #endif
