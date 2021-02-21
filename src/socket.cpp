@@ -21,6 +21,13 @@
 #include <Arduino.h>
 #include "Ethernet.h"
 #include "utility/w5100.h"
+#include "EthernetIcmp.h"
+
+#ifdef ICMPPING_INSERT_YIELDS
+#define ICMPPING_DOYIELD()		delay(2)
+#else
+#define ICMPPING_DOYIELD()
+#endif
 
 #if ARDUINO >= 156 && !defined(ARDUINO_ARCH_PIC32)
 extern void yield(void);
@@ -537,3 +544,110 @@ bool EthernetClass::socketSendUDP(uint8_t s)
 	return true;
 }
 
+void EthernetICMPPing::receiveEchoReply(const EthernetICMPEcho& echoReq, const IPAddress& addr, EthernetICMPEchoReply& echoReply)
+{
+    icmp_time_t start = millis();
+    while (millis() - start < ping_timeout)
+    {
+
+        if (getSnRX_RSR(_socket) < 1)
+        {
+        	// take a break, maybe let platform do
+        	// some background work (like on ESP8266)
+        	ICMPPING_DOYIELD();
+        	continue;
+        }
+
+        // ah! we did receive something... check it out.
+
+        uint8_t ipHeader[6];
+		uint8_t buffer = W5100.readSnRX_RD(_socket);
+		read_data(_socket, (uint16_t) buffer, ipHeader, sizeof(ipHeader));
+		buffer += sizeof(ipHeader);
+		for (int i = 0; i < 4; ++i)
+			echoReply.addr[i] = ipHeader[i];
+		uint8_t dataLen = ipHeader[4];
+		dataLen = (dataLen << 8) + ipHeader[5];
+
+		uint8_t serialized[sizeof(EthernetICMPEcho)];
+		if (dataLen > sizeof(EthernetICMPEcho))
+			dataLen = sizeof(EthernetICMPEcho);
+		read_data(_socket, (uint16_t) buffer, serialized, dataLen);
+		echoReply.data.deserialize(serialized);
+
+		buffer += dataLen;
+		W5100.writeSnRX_RD(_socket, buffer);
+		W5100.execCmdSn(_socket, Sock_RECV);
+
+		echoReply.ttl = W5100.readSnTTL(_socket);
+
+		// Since there aren't any ports in ICMP, we need to manually inspect the response
+		// to see if it originated from the request we sent out.
+		switch (echoReply.data.icmpHeader.type) {
+		case ICMP_ECHOREP: {
+			if (echoReply.data.id == echoReq.id
+					&& echoReply.data.seq == echoReq.seq) {
+				echoReply.status = SUCCESS;
+				return;
+			}
+			break;
+		}
+		case TIME_EXCEEDED: {
+			uint8_t * sourceIpHeader = echoReply.data.payload;
+			unsigned int ipHeaderSize = (sourceIpHeader[0] & 0x0F) * 4u;
+			uint8_t * sourceIcmpHeader = echoReply.data.payload + ipHeaderSize;
+
+			// The destination ip address in the originating packet's IP header.
+			IPAddress sourceDestAddress(sourceIpHeader + ipHeaderSize - 4);
+
+			if (!(sourceDestAddress == addr))
+				continue;
+
+			uint16_t sourceId = ntohs(*(uint16_t * )(sourceIcmpHeader + 4));
+			uint16_t sourceSeq = ntohs(*(uint16_t * )(sourceIcmpHeader + 6));
+
+			if (sourceId == echoReq.id && sourceSeq == echoReq.seq) {
+				echoReply.status = BAD_RESPONSE;
+				return;
+			}
+			break;
+		}
+		}
+
+
+    }
+    echoReply.status = NO_RESPONSE;
+}
+
+Status EthernetICMPPing::sendEchoRequest(const IPAddress& addr, const EthernetICMPEcho& echoReq)
+{
+    // I wish there were a better way of doing this, but if we use the uint32_t
+    // cast operator, we're forced to (1) cast away the constness, and (2) deal
+    // with an endianness nightmare.
+    uint8_t addri [] = {addr[0], addr[1], addr[2], addr[3]};
+    W5100.writeSnDIPR(_socket, addri);
+    W5100.writeSnTTL(_socket, 255);
+    // The port isn't used, becuause ICMP is a network-layer protocol. So we
+    // write zero. This probably isn't actually necessary.
+    W5100.writeSnDPORT(_socket, 0);
+
+    uint8_t serialized [sizeof(EthernetICMPEcho)];
+    echoReq.serialize(serialized);
+
+    //W5100.send_data_processing(_socket, serialized, sizeof(EthernetICMPEcho));
+    write_data(_socket, 0, serialized, sizeof(EthernetICMPEcho));
+    W5100.execCmdSn(_socket, Sock_SEND);
+
+    while ((W5100.readSnIR(_socket) & SnIR::SEND_OK) != SnIR::SEND_OK) 
+    {
+        if (W5100.readSnIR(_socket) & SnIR::TIMEOUT)
+        {
+            W5100.writeSnIR(_socket, (SnIR::SEND_OK | SnIR::TIMEOUT));
+            return SEND_TIMEOUT;
+        }
+
+        ICMPPING_DOYIELD();
+    }
+    W5100.writeSnIR(_socket, SnIR::SEND_OK);
+    return SUCCESS;
+}

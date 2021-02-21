@@ -16,6 +16,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
+#include <util.h>
 
 // Safe for all chips
 #define SPI_ETHERNET_SETTINGS SPISettings(14000000, MSBFIRST, SPI_MODE0)
@@ -33,7 +34,6 @@
 #error "Ethernet.h must be included before w5100.h"
 #endif
 
-
 // Arduino 101's SPI can not run faster than 8 MHz.
 #if defined(ARDUINO_ARCH_ARC32)
 #undef SPI_ETHERNET_SETTINGS
@@ -47,6 +47,14 @@
 #undef SPI_ETHERNET_SETTINGS
 #define SPI_ETHERNET_SETTINGS SPISettings(8000000, MSBFIRST, SPI_MODE0)
 #endif
+
+
+// Industruino can't go faster than 4 MHz
+#if defined(ARDUINO_SAMD_INDUSTRUINO_D21G)
+#undef SPI_ETHERNET_SETTINGS
+#define SPI_ETHERNET_SETTINGS SPISettings(4000000, MSBFIRST, SPI_MODE0)
+#endif
+
 
 
 typedef uint8_t SOCKET;
@@ -140,8 +148,8 @@ public:
   inline void setIPAddress(const uint8_t * addr) { writeSIPR(addr); }
   inline void getIPAddress(uint8_t * addr) { readSIPR(addr); }
 
-  inline void setRetransmissionTime(uint16_t timeout) { writeRTR(timeout); }
-  inline void setRetransmissionCount(uint8_t retry) { writeRCR(retry); }
+  inline void setRetransmissionTime(uint16_t timeout) { if (chip == 55) writeRTR_W5500(timeout); else writeRTR_W5100(timeout); }
+  inline void setRetransmissionCount(uint8_t retry) { if (chip == 55) writeRCR_W5500(retry); else writeRCR_W5100(retry); }
 
   static void execCmdSn(SOCKET s, SockCMD _cmd);
 
@@ -190,26 +198,39 @@ public:
   static W5100Linkstatus getLinkStatus();
 
 public:
-  __GP_REGISTER8 (MR,     0x0000);    // Mode
-  __GP_REGISTER_N(GAR,    0x0001, 4); // Gateway IP address
-  __GP_REGISTER_N(SUBR,   0x0005, 4); // Subnet mask address
-  __GP_REGISTER_N(SHAR,   0x0009, 6); // Source MAC address
-  __GP_REGISTER_N(SIPR,   0x000F, 4); // Source IP address
-  __GP_REGISTER8 (IR,     0x0015);    // Interrupt
-  __GP_REGISTER8 (IMR,    0x0016);    // Interrupt Mask
-  __GP_REGISTER16(RTR,    0x0017);    // Timeout address
-  __GP_REGISTER8 (RCR,    0x0019);    // Retry count
-  __GP_REGISTER8 (RMSR,   0x001A);    // Receive memory size (W5100 only)
-  __GP_REGISTER8 (TMSR,   0x001B);    // Transmit memory size (W5100 only)
-  __GP_REGISTER8 (PATR,   0x001C);    // Authentication type address in PPPoE mode
-  __GP_REGISTER8 (PTIMER, 0x0028);    // PPP LCP Request Timer
-  __GP_REGISTER8 (PMAGIC, 0x0029);    // PPP LCP Magic Number
-  __GP_REGISTER_N(UIPR,   0x002A, 4); // Unreachable IP address in UDP mode (W5100 only)
-  __GP_REGISTER16(UPORT,  0x002E);    // Unreachable Port address in UDP mode (W5100 only)
-  __GP_REGISTER8 (VERSIONR_W5200,0x001F);   // Chip Version Register (W5200 only)
-  __GP_REGISTER8 (VERSIONR_W5500,0x0039);   // Chip Version Register (W5500 only)
-  __GP_REGISTER8 (PSTATUS_W5200,     0x0035);    // PHY Status
-  __GP_REGISTER8 (PHYCFGR_W5500,     0x002E);    // PHY Configuration register, default: 10111xxx
+  __GP_REGISTER8 (MR,          0x0000);      // Mode
+  __GP_REGISTER_N(GAR,           0x0001, 4); // Gateway IP address
+  __GP_REGISTER_N(SUBR,          0x0005, 4); // Subnet mask address
+  __GP_REGISTER_N(SHAR,          0x0009, 6); // Source MAC address
+  __GP_REGISTER_N(SIPR,          0x000F, 4); // Source IP address
+  __GP_REGISTER16(INTLEVEL,      0x0013);    // Interrupt Low Level Timer
+  __GP_REGISTER8 (IR,            0x0015);    // Interrupt
+  __GP_REGISTER8 (IMR,           0x0016);    // Interrupt Mask
+  __GP_REGISTER8 (SIR,           0x0017);    // Socket Interrupt (W5500 only)
+  __GP_REGISTER16(RTR_W5100,     0x0017);    // Timeout address
+  __GP_REGISTER8 (SIMR,          0x0018);    // Socket Interrupt Mask 
+  __GP_REGISTER16(RTR_W5500,     0x0019);    // Timeout address (W5500 only)
+  __GP_REGISTER8 (RCR_W5100,     0x0019);    // Retry count
+  __GP_REGISTER8 (RCR_W5500,     0x001B);    // Retry count (W5500 only)
+  __GP_REGISTER8 (RMSR,          0x001A);    // Receive memory size (W5100 only)
+  __GP_REGISTER8 (TMSR,          0x001B);    // Transmit memory size (W5100 only)
+  __GP_REGISTER8 (PATR,          0x001C);    // Authentication type address in PPPoE mode
+  __GP_REGISTER8 (PTIMER_W5100,  0x0028);    // PPP LCP Request Timer
+  __GP_REGISTER8 (PTIMER_W5500,  0x001C);    // PPP LCP Request Timer (W5500 only)
+  __GP_REGISTER8 (PMAGIC_W5100,  0x0029);    // PPP LCP Magic Number
+  __GP_REGISTER8 (PMAGIC_W5500,  0x001D);    // PPP LCP Magic Number (W5500 only)
+  __GP_REGISTER_N(UIPR_W5100,    0x002A, 4); // Unreachable IP address in UDP mode (W5100 only)
+  __GP_REGISTER_N(UIPR_W5500,    0x0028, 4); // Unreachable IP address in UDP mode (W5500 only)
+  __GP_REGISTER16(UPORT_W5100,   0x002E);    // Unreachable Port address in UDP mode (W5100 only)
+  __GP_REGISTER16(UPORT_W5500,   0x002C);    // Unreachable Port address in UDP mode (W5500 only)
+  __GP_REGISTER8 (VERSIONR_W5200,0x001F);    // Chip Version Register (W5200 only)
+  __GP_REGISTER8 (VERSIONR_W5500,0x0039);    // Chip Version Register (W5500 only)
+  __GP_REGISTER8 (PSTATUS_W5200, 0x0035);    // PHY Status
+  __GP_REGISTER8 (PHYCFGR_W5500, 0x002E);    // PHY Configuration register, default: 10111xxx
+  __GP_REGISTER_N(PHAR,          0x001E, 6); // PPP Destination MAC address
+  __GP_REGISTER16(PSID,          0x0024);    // PPP Session ID
+  __GP_REGISTER16(PMRU,          0x0026);    // PPP Maximum Segment Size
+
 
 
 #undef __GP_REGISTER8
@@ -289,6 +310,9 @@ public:
   __SOCKET_REGISTER16(SnRX_RSR,   0x0026)        // RX Free Size
   __SOCKET_REGISTER16(SnRX_RD,    0x0028)        // RX Read Pointer
   __SOCKET_REGISTER16(SnRX_WR,    0x002A)        // RX Write Pointer (supported?)
+  __SOCKET_REGISTER8(Sn_IMR,      0x002C)        // Interrupt Mask (W5500 only)
+  __SOCKET_REGISTER16(SnFRAG,     0x002D)        // Fragment Offset in IP header (W5500 only)
+  __SOCKET_REGISTER8(Sn_KPALVTR,  0x002F)        // Keep alive timer (W5500 only)
 
 #undef __SOCKET_REGISTER8
 #undef __SOCKET_REGISTER16
@@ -297,8 +321,8 @@ public:
 
 private:
   static uint8_t chip;
-  static uint8_t ss_pin;
   static uint8_t softReset(void);
+  static uint8_t ss_pin;
   static uint8_t isW5100(void);
   static uint8_t isW5200(void);
   static uint8_t isW5500(void);
@@ -448,23 +472,5 @@ private:
 extern W5100Class W5100;
 
 
-
-#endif
-
-#ifndef UTIL_H
-#define UTIL_H
-
-#ifndef htons
-
-#define htons(x) ( (((x)<<8)&0xFF00) | (((x)>>8)&0xFF) )
-#define ntohs(x) htons(x)
-
-#define htonl(x) ( ((x)<<24 & 0xFF000000UL) | \
-                   ((x)<< 8 & 0x00FF0000UL) | \
-                   ((x)>> 8 & 0x0000FF00UL) | \
-                   ((x)>>24 & 0x000000FFUL) )
-#define ntohl(x) htonl(x)
-
-#endif // !defined(htons)
 
 #endif
