@@ -1,5 +1,5 @@
 Customized library based on the original one.
-- Added correct resistry definitions for W5500
+- Added correct registry definitions for W5500
 - Corrected minor problems
 - added automatic spi settings for Industruino ethernet module
 - Included ICMP ping functions from BlakeFoster ICMPPing library
