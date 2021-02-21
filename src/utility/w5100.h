@@ -49,10 +49,12 @@
 #endif
 
 
-#if defined(INDUSTRUINO)
+// Industruino can't go faster than 4 MHz
+#if defined(ARDUINO_SAMD_INDUSTRUINO_D21G)
 #undef SPI_ETHERNET_SETTINGS
 #define SPI_ETHERNET_SETTINGS SPISettings(4000000, MSBFIRST, SPI_MODE0)
 #endif
+
 
 
 typedef uint8_t SOCKET;
