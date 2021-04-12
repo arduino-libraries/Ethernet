@@ -1,4 +1,4 @@
-// Arduino DNS client for WizNet5100-based Ethernet shield
+// Arduino DNS client for WIZnet W5100-based Ethernet shield
 // (c) Copyright 2009-2010 MCQN Ltd.
 // Released under Apache License, version 2.0
 
@@ -336,7 +336,7 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
 				iUdp.flush(); // FIXME
 				return -9;//INVALID_RESPONSE;
 			}
-			// FIXME: seeems to lock up here on ESP8266, but why??
+			// FIXME: seems to lock up here on ESP8266, but why??
 			iUdp.read(aAddress.raw_address(), 4);
 			return SUCCESS;
 		} else {
@@ -351,4 +351,3 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
 	// If we get here then we haven't found an answer
 	return -10; //INVALID_RESPONSE;
 }
-
