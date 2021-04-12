@@ -413,9 +413,14 @@ uint16_t W5100Class::read(uint16_t addr, uint8_t *buf, uint16_t len)
 		cmd[1] = addr & 0xFF;
 		cmd[2] = (len >> 8) & 0x7F;
 		cmd[3] = len & 0xFF;
+#ifdef SPI_HAS_TRANSFER_BUF
+		SPI.transfer(cmd, NULL, 4);
+		SPI.transfer(NULL, buf, len);
+#else
 		SPI.transfer(cmd, 4);
 		memset(buf, 0, len);
 		SPI.transfer(buf, len);
+#endif
 		resetSS();
 	} else { // chip == 55
 		setSS();
@@ -457,9 +462,14 @@ uint16_t W5100Class::read(uint16_t addr, uint8_t *buf, uint16_t len)
 			cmd[2] = ((addr >> 6) & 0xE0) | 0x18; // 2K buffers
 			#endif
 		}
+#ifdef SPI_HAS_TRANSFER_BUF
+		SPI.transfer(cmd, NULL, 3);
+		SPI.transfer(NULL, buf, len);
+#else
 		SPI.transfer(cmd, 3);
 		memset(buf, 0, len);
 		SPI.transfer(buf, len);
+#endif
 		resetSS();
 	}
 	return len;
