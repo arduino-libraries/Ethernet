@@ -155,6 +155,8 @@ private:
 	IPAddress _remoteIP; // remote IP address for the incoming packet whilst it's being processed
 	uint16_t _remotePort; // remote port for the incoming packet whilst it's being processed
 	uint16_t _offset; // offset into the packet being sent
+	uint16_t _dnsTimeout = 1500;
+	uint8_t _dnsRetries = 3;
 
 protected:
 	uint8_t sockindex;
@@ -162,6 +164,7 @@ protected:
 
 public:
 	EthernetUDP() : sockindex(MAX_SOCK_NUM) {}  // Constructor
+	EthernetUDP(uint16_t dnsTimeout, uint8_t dnsRetries) : sockindex(MAX_SOCK_NUM), _dnsTimeout(dnsTimeout), _dnsRetries(_dnsRetries) {}  // Constructor with dns settings
 	virtual uint8_t begin(uint16_t);      // initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
 	virtual uint8_t beginMulticast(IPAddress, uint16_t);  // initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
 	virtual void stop();  // Finish with the UDP socket
