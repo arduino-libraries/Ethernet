@@ -5,7 +5,7 @@
  Get the time from a Network Time Protocol (NTP) time server
  Demonstrates use of UDP sendPacket and ReceivePacket
  For more on NTP time servers and the messages needed to communicate with them,
- see http://en.wikipedia.org/wiki/Network_Time_Protocol
+ see https://en.wikipedia.org/wiki/Network_Time_Protocol
 
  created 4 Sep 2010
  by Michael Margolis

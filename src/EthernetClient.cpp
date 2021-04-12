@@ -189,7 +189,7 @@ uint16_t EthernetClient::localPort()
 }
 
 // https://github.com/per1234/EthernetMod
-// returns the remote IP address: http://forum.arduino.cc/index.php?topic=82416.0
+// returns the remote IP address: https://forum.arduino.cc/index.php?topic=82416.0
 IPAddress EthernetClient::remoteIP()
 {
 	if (sockindex >= MAX_SOCK_NUM) return IPAddress((uint32_t)0);
