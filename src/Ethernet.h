@@ -215,6 +215,7 @@ class EthernetClient : public Client {
 public:
 	EthernetClient() : sockindex(MAX_SOCK_NUM), _timeout(1000) { }
 	EthernetClient(uint8_t s) : sockindex(s), _timeout(1000) { }
+	virtual ~EthernetClient() {};
 
 	uint8_t status();
 	virtual int connect(IPAddress ip, uint16_t port);
