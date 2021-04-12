@@ -39,12 +39,12 @@
 #define MAX_SOCK_NUM 8
 #endif
 
-// By default, each socket uses 2K buffers inside the Wiznet chip.  If
+// By default, each socket uses 2K buffers inside the WIZnet chip.  If
 // MAX_SOCK_NUM is set to fewer than the chip's maximum, uncommenting
-// this will use larger buffers within the Wiznet chip.  Large buffers
+// this will use larger buffers within the WIZnet chip.  Large buffers
 // can really help with UDP protocols like Artnet.  In theory larger
 // buffers should allow faster TCP over high-latency links, but this
-// does not always seem to work in practice (maybe Wiznet bugs?)
+// does not always seem to work in practice (maybe WIZnet bugs?)
 //#define ETHERNET_LARGE_BUFFERS
 
 
@@ -84,7 +84,7 @@ public:
 	static EthernetLinkStatus linkStatus();
 	static EthernetHardwareStatus hardwareStatus();
 
-	// Manaul configuration
+	// Manual configuration
 	static void begin(uint8_t *mac, IPAddress ip);
 	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns);
 	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway);
