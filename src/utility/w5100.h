@@ -17,6 +17,11 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+// add SPI_ETHERNET_SPEED to allow for an explicit change of SPI speed
+#ifndef SPI_ETHERNET_SPEED
+#define SPI_ETHERNET_SPEED 14000000
+#endif
+
 // Safe for all chips
 #define SPI_ETHERNET_SETTINGS SPISettings(14000000, MSBFIRST, SPI_MODE0)
 
