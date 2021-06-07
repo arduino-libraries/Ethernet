@@ -159,6 +159,11 @@ void EthernetICMPPing::openSocket()
     W5100.execCmdSn(_socket, Sock_OPEN);
 }
 
+void EthernetICMPPing::closeSocket()
+{
+    W5100.execCmdSn(_socket, Sock_CLOSE);
+    W5100.writeSnIR(_socket, 0xFF);
+}
 
 
 void EthernetICMPPing::operator()(const IPAddress& addr, int nRetries, EthernetICMPEchoReply& result)
@@ -256,16 +261,24 @@ bool EthernetICMPPing::asyncComplete(EthernetICMPEchoReply& result)
 		//	- failed to send; or
 		//	- are no longer waiting on this packet.
 		// either way, we're done
+
+		// Close RAW socket to allow device being pinged again
+		closeSocket();
+
 		return true;
 	}
 
 
-	if (W5100.getRXReceivedSize(_socket))
+	if (W5100.readSnRX_SIZE(_socket))
 	{
 		// ooooh, we've got a pending reply
 	    EthernetICMPEcho echoReq(ICMP_ECHOREQ, _id, _curSeq, _payload);
 		receiveEchoReply(echoReq, _addr, result);
 		_asyncstatus = result.status; // make note of this status, whatever it is.
+
+		// Close RAW socket to allow device being pinged again
+		closeSocket();
+
 		return true; // whatever the result of the receiveEchoReply(), the async op is done.
 	}
 
@@ -286,6 +299,10 @@ bool EthernetICMPPing::asyncComplete(EthernetICMPEchoReply& result)
 
 			// this send has failed. too bad,
 			// we are done.
+
+			// Close RAW socket to allow device being pinged again
+			closeSocket();
+
 			return true;
 		}
 
@@ -293,6 +310,10 @@ bool EthernetICMPPing::asyncComplete(EthernetICMPEchoReply& result)
 		// hello?  is anybody out there?
 		// guess not:
 	    result.status = NO_RESPONSE;
+
+	    // Close RAW socket to allow device being pinged again
+	    closeSocket();
+
 	    return true;
 	}
 

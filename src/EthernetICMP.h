@@ -303,6 +303,7 @@ private:
     static uint16_t ping_timeout;
 
     void openSocket();
+    void closeSocket();
 
     Status sendEchoRequest(const IPAddress& addr, const EthernetICMPEcho& echoReq);
     void receiveEchoReply(const EthernetICMPEcho& echoReq, const IPAddress& addr, EthernetICMPEchoReply& echoReply);
