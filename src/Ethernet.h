@@ -47,6 +47,9 @@
 // does not always seem to work in practice (maybe WIZnet bugs?)
 //#define ETHERNET_LARGE_BUFFERS
 
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
+#include <PortentaEthernet.h>
+#endif
 
 #include <Arduino.h>
 #include "Client.h"
