@@ -92,12 +92,12 @@ int EthernetClient::available()
 {
 	if (sockindex >= MAX_SOCK_NUM) return 0;
 	return Ethernet.socketRecvAvailable(sockindex);
-	// TODO: do the Wiznet chips automatically retransmit TCP ACK
+	// TODO: do the WIZnet chips automatically retransmit TCP ACK
 	// packets if they are lost by the network?  Someday this should
 	// be checked by a man-in-the-middle test which discards certain
 	// packets.  If ACKs aren't resent, we would need to check for
 	// returning 0 here and after a timeout do another Sock_RECV
-	// command to cause the Wiznet chip to resend the ACK packet.
+	// command to cause the WIZnet chip to resend the ACK packet.
 }
 
 int EthernetClient::read(uint8_t *buf, size_t size)
@@ -189,7 +189,7 @@ uint16_t EthernetClient::localPort()
 }
 
 // https://github.com/per1234/EthernetMod
-// returns the remote IP address: http://forum.arduino.cc/index.php?topic=82416.0
+// returns the remote IP address: https://forum.arduino.cc/index.php?topic=82416.0
 IPAddress EthernetClient::remoteIP()
 {
 	if (sockindex >= MAX_SOCK_NUM) return IPAddress((uint32_t)0);
@@ -211,5 +211,3 @@ uint16_t EthernetClient::remotePort()
 	SPI.endTransaction();
 	return port;
 }
-
-

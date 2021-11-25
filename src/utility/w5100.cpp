@@ -18,7 +18,7 @@
 /***************************************************/
 
 // If variant.h or other headers specifically define the
-// default SS pin for ethernet, use it.
+// default SS pin for Ethernet, use it.
 #if defined(PIN_SPI_SS_ETHERNET_LIB)
 #define SS_PIN_DEFAULT  PIN_SPI_SS_ETHERNET_LIB
 
@@ -135,7 +135,7 @@ uint8_t W5100Class::init(void)
 			writeSnRX_SIZE(i, 0);
 			writeSnTX_SIZE(i, 0);
 		}
-	// Try W5500 next.  Wiznet finally seems to have implemented
+	// Try W5500 next.  WIZnet finally seems to have implemented
 	// SPI well with this chip.  It appears to be very resilient,
 	// so try it after the fragile W5200
 	} else if (isW5500()) {
@@ -224,7 +224,7 @@ uint8_t W5100Class::init(void)
 	return 1; // successful init
 }
 
-// Soft reset the Wiznet chip, by writing to its MR register reset bit
+// Soft reset the WIZnet chip, by writing to its MR register reset bit
 uint8_t W5100Class::softReset(void)
 {
 	uint16_t count=0;
