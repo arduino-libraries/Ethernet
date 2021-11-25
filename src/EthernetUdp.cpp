@@ -118,7 +118,7 @@ int EthernetUDP::parsePacket()
 				_remaining = (tmpBuf[0] & (0x7))<<8 | tmpBuf[1];
 
 				if((tmpBuf[0] & W6100_UDP_HEADER_IPV) == W6100_UDP_HEADER_IPV6) {
-					// IPv6 UDP Recived
+					// IPv6 UDP Received
 					// 0 1
 					// 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
 					// 18 19
@@ -128,7 +128,7 @@ int EthernetUDP::parsePacket()
 					_remoteIP = &tmpBuf[2];					
 					_remotePort = (tmpBuf[18]<<8) | tmpBuf[19];
 				} else {
-					// IPv4 UDP Recived
+					// IPv4 UDP Received
 					// 0 1
 					// 2 3 4 5
 					// 6 7
