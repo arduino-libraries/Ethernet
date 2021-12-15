@@ -64,6 +64,8 @@ void loop() {
     Serial.println(s); // print the message to Serial Monitor
     client.print("echo: "); // this is only for the sending client
     server.println(s); // send the message to all connected clients
+#ifndef ARDUINO_ARCH_SAM
     server.flush(); // flush the buffers
+#endif /* !defined(ARDUINO_ARCH_SAM) */
   }
 }
