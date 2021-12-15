@@ -39,7 +39,7 @@ void setup() {
     if (Ethernet.linkStatus() == LinkOFF) {
       Serial.println("Ethernet cable is not connected.");
     }
-    // try to congifure using IP address instead of DHCP:
+    // try to configure using IP address instead of DHCP:
     Ethernet.begin(mac, ip);
   } else {
     Serial.print("  DHCP assigned IP ");
