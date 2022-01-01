@@ -99,20 +99,18 @@ uint8_t W5100Class::init(void)
 	// until the reset pulse is ended.  If your hardware has a shorter
 	// reset time, this can be edited or removed.
 	delay(560);
-	//SerialUSB.println(ss_pin);
+	//Serial.println("w5100 init");
 
 	SPI.begin();
 	initSS();
 	resetSS();
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-	// SerialUSB.println("SPI inizializzato");
+
 	// Attempt W5200 detection first, because W5200 does not properly
 	// reset its SPI state when CS goes high (inactive).  Communication
 	// from detecting the other chips can leave the W5200 in a state
 	// where it won't recover, unless given a reset pulse.
 	if (isW5200()) {
-		// SerialUSB.println("isW5200");
-
 		CH_BASE_MSB = 0x40;
 #ifdef ETHERNET_LARGE_BUFFERS
 #if MAX_SOCK_NUM <= 1
@@ -138,7 +136,6 @@ uint8_t W5100Class::init(void)
 	// SPI well with this chip.  It appears to be very resilient,
 	// so try it after the fragile W5200
 	} else if (isW5500()) {
-		// SerialUSB.println("isW5500");
 		CH_BASE_MSB = 0x10;
 #ifdef ETHERNET_LARGE_BUFFERS
 #if MAX_SOCK_NUM <= 1
@@ -166,7 +163,6 @@ uint8_t W5100Class::init(void)
 	// communication.  W5100 is also the only chip without a VERSIONR
 	// register for identification, so we check this last.
 	} else if (isW5100()) {
-		// SerialUSB.println("isW5100");
 		CH_BASE_MSB = 0x04;
 #ifdef ETHERNET_LARGE_BUFFERS
 #if MAX_SOCK_NUM <= 1
@@ -239,7 +235,7 @@ uint8_t W5100Class::isW5100(void)
 uint8_t W5100Class::isW5200(void)
 {
 	chip = 52;
-	// SerialUSB.println("w5100.cpp: detect W5200 chip");
+	// Serial.println("w5100.cpp: detect W5200 chip");
 	if (!softReset()) return 0;
 	writeMR(0x08);
 	if (readMR() != 0x08) return 0;
@@ -248,17 +244,17 @@ uint8_t W5100Class::isW5200(void)
 	writeMR(0x00);
 	if (readMR() != 0x00) return 0;
 	int ver = readVERSIONR_W5200();
-	// SerialUSB.print("version=");
-	// SerialUSB.println(ver);
+	// Serial.print("version=");
+	// Serial.println(ver);
 	if (ver != 3) return 0;
-	// SerialUSB.println("chip is W5200");
+	// Serial.println("chip is W5200");
 	return 1;
 }
 
 uint8_t W5100Class::isW5500(void)
 {
 	chip = 55;
-	// SerialUSB.println("w5100.cpp: detect W5500 chip");
+	// Serial.println("w5100.cpp: detect W5500 chip");
 	if (!softReset()) return 0;
 	writeMR(0x08);
 	if (readMR() != 0x08) return 0;
@@ -267,10 +263,10 @@ uint8_t W5100Class::isW5500(void)
 	writeMR(0x00);
 	if (readMR() != 0x00) return 0;
 	int ver = readVERSIONR_W5500();
-	// SerialUSB.print("version=");
-	// SerialUSB.println(ver);
+	// Serial.print("version=");
+	// Serial.println(ver);
 	if (ver != 4) return 0;
-	// SerialUSB.println("chip is W5500");
+	// Serial.println("chip is W5500");
 	return 1;
 }
 
