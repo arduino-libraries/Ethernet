@@ -34,6 +34,7 @@
 #error "Ethernet.h must be included before w5100.h"
 #endif
 
+
 // Arduino 101's SPI can not run faster than 8 MHz.
 #if defined(ARDUINO_ARCH_ARC32)
 #undef SPI_ETHERNET_SETTINGS
@@ -321,8 +322,8 @@ public:
 
 private:
   static uint8_t chip;
-  static uint8_t softReset(void);
   static uint8_t ss_pin;
+  static uint8_t softReset(void);
   static uint8_t isW5100(void);
   static uint8_t isW5200(void);
   static uint8_t isW5500(void);
