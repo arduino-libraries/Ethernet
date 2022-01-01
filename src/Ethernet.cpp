@@ -28,7 +28,6 @@ DhcpClass* EthernetClass::_dhcp = NULL;
 
 int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
 {
-	//SerialUSB.println("0");
 	static DhcpClass s_dhcp;
 	_dhcp = &s_dhcp;
 	// Initialise the basic info
@@ -56,7 +55,6 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
 
 void EthernetClass::begin(uint8_t *mac, IPAddress ip)
 {
-	//SerialUSB.println("1");
 	// Assume the DNS server will be the machine on the same network as the local IP
 	// but with last octet being '1'
 	IPAddress dns = ip;
@@ -66,7 +64,6 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip)
 
 void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns)
 {
-	//SerialUSB.println("2");
 	// Assume the gateway will be the machine on the same network as the local IP
 	// but with last octet being '1'
 	IPAddress gateway = ip;
@@ -76,16 +73,13 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns)
 
 void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway)
 {
-	//SerialUSB.println("3");
 	IPAddress subnet(255, 255, 255, 0);
 	begin(mac, ip, dns, gateway, subnet);
 }
 
 void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet)
 {
-	//SerialUSB.println("4");
 	if (W5100.init() == 0) return;
-	//SerialUSB.println("5");
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	W5100.setMACAddress(mac);
 #ifdef ESP8266
