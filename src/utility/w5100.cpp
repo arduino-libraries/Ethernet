@@ -197,7 +197,6 @@ uint8_t W5100Class::init(void)
 	return 1; // successful init
 }
 
-
 // Soft reset the Wiznet chip, by writing to its MR register reset bit
 uint8_t W5100Class::softReset(void)
 {
@@ -235,7 +234,7 @@ uint8_t W5100Class::isW5100(void)
 uint8_t W5100Class::isW5200(void)
 {
 	chip = 52;
-	// Serial.println("w5100.cpp: detect W5200 chip");
+	//Serial.println("w5100.cpp: detect W5200 chip");
 	if (!softReset()) return 0;
 	writeMR(0x08);
 	if (readMR() != 0x08) return 0;
@@ -244,17 +243,17 @@ uint8_t W5100Class::isW5200(void)
 	writeMR(0x00);
 	if (readMR() != 0x00) return 0;
 	int ver = readVERSIONR_W5200();
-	// Serial.print("version=");
-	// Serial.println(ver);
+	//Serial.print("version=");
+	//Serial.println(ver);
 	if (ver != 3) return 0;
-	// Serial.println("chip is W5200");
+	//Serial.println("chip is W5200");
 	return 1;
 }
 
 uint8_t W5100Class::isW5500(void)
 {
 	chip = 55;
-	// Serial.println("w5100.cpp: detect W5500 chip");
+	//Serial.println("w5100.cpp: detect W5500 chip");
 	if (!softReset()) return 0;
 	writeMR(0x08);
 	if (readMR() != 0x08) return 0;
@@ -263,10 +262,10 @@ uint8_t W5100Class::isW5500(void)
 	writeMR(0x00);
 	if (readMR() != 0x00) return 0;
 	int ver = readVERSIONR_W5500();
-	// Serial.print("version=");
-	// Serial.println(ver);
+	//Serial.print("version=");
+	//Serial.println(ver);
 	if (ver != 4) return 0;
-	// Serial.println("chip is W5500");
+	//Serial.println("chip is W5500");
 	return 1;
 }
 
