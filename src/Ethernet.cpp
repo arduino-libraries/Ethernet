@@ -30,6 +30,7 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
 {
 	static DhcpClass s_dhcp;
 	_dhcp = &s_dhcp;
+
 	// Initialise the basic info
 	if (W5100.init() == 0) return 0;
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
