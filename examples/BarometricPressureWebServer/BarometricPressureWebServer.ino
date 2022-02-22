@@ -1,5 +1,5 @@
 /*
-  SCP1000 Barometric Pressure Sensor Display
+ SCP1000 Barometric Pressure Sensor Display
 
  Serves the output of a Barometric Pressure Sensor as a web page.
  Uses the SPI library. For details on the sensor, see:

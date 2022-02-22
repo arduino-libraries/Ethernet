@@ -1,5 +1,5 @@
 /*
-  Web client
+ Web client
 
  This sketch connects to a website (http://www.google.com)
  using an Arduino WIZnet Ethernet shield.

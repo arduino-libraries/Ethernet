@@ -1,5 +1,6 @@
 /*
- UDPSendReceiveString:
+ UDPSendReceiveString
+
  This sketch receives UDP message strings, prints them to the serial port
  and sends an "acknowledge" string back to the sender
 

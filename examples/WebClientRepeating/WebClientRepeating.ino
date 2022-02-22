@@ -1,5 +1,5 @@
 /*
-  Repeating Web client
+ Repeating Web client
 
  This sketch connects to a a web server and makes a request
  using a WIZnet Ethernet shield. You can use the Arduino Ethernet Shield, or
