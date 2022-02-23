@@ -8,8 +8,9 @@ The Arduino board communicates with the shield using the SPI bus. This is on dig
 
 ![Arduino MEGA Pin map.](./arduino_mega_ethernet_pins.png)
 
-```
 To use this library
+
+```
 #include <SPI.h>
 #include <Ethernet.h>
 ```

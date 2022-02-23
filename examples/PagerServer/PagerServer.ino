@@ -1,5 +1,5 @@
 /*
- Pager  Server
+ Pager Server
 
  A simple server that echoes any incoming messages to all
  connected clients. Connect two or more telnet sessions

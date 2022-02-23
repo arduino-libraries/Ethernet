@@ -1,5 +1,4 @@
 /*
-
  Udp NTP Client
 
  Get the time from a Network Time Protocol (NTP) time server
