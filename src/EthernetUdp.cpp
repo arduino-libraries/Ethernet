@@ -110,7 +110,6 @@ int EthernetUDP::parsePacket()
 		//HACK - hand-parse the UDP packet using TCP recv method
 		uint8_t tmpBuf[20];
 		int ret=0;
-		int i;
 
 		if(W5100.getChip() == 61) {
 			//read 2 header bytes and get one IPv4 or IPv6

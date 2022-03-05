@@ -329,7 +329,6 @@ private:
   }                                                          \
   static inline uint8_t read##name(SOCKET _s) {              \
     if(chip == 61) {                                         \
-      uint8_t data;                                          \
       return readSn(_s, adrss_w6100);  \
     } else {                                                 \
       return readSn(_s, address);                            \

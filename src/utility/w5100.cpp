@@ -250,7 +250,6 @@ uint8_t W5100Class::init(void)
 uint8_t W5100Class::softReset(void)
 {
 	uint16_t count=0;
-	uint8_t sysr;
 
 	if(chip == 61) {
 		writeCHPLCKR_W6100(W6100_CHPLCKR_UNLOCK);		// Unlock SYSR[CHPL]
