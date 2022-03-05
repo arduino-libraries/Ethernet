@@ -47,6 +47,79 @@
 // does not always seem to work in practice (maybe WIZnet bugs?)
 //#define ETHERNET_LARGE_BUFFERS
 
+//#define USE_SERIAL_DEBUG_PRINT
+
+#ifdef USE_SERIAL_DEBUG_PRINT
+#define PRINTLINE_DEF(var)  \
+PRINTLINE();				\
+Serial.println("PRINTLINE_DEF("#var")");
+#else
+#define PRINTLINE_DEF(var) 
+#endif
+
+#ifdef USE_SERIAL_DEBUG_PRINT
+#define PRINTLINE()       \
+Serial.print("\r\n");     \
+Serial.print(__FILE__);   \
+Serial.print(" ");        \
+Serial.println(__LINE__);
+#else
+#define PRINTLINE() 
+#endif
+
+#ifdef USE_SERIAL_DEBUG_PRINT
+#define PRINTVAR_HEX(var) \
+PRINTLINE();			  \
+Serial.print("PRINTVAR_HEX("#var")"); \
+Serial.print(" = 0x");    \
+Serial.println(var, HEX);  
+#else
+#define PRINTVAR_HEX(var) 
+#endif
+
+#ifdef USE_SERIAL_DEBUG_PRINT
+#define PRINTVAR_HEXD(var1, var2) \
+PRINTLINE();				\
+Serial.print("PRINTVAR_HEXD("#var1", "#var2")"); \
+Serial.print(" = 0x");    \
+Serial.print(var1, HEX);  \
+Serial.print(" = 0x");    \
+Serial.println(var2, HEX); 
+#else
+#define PRINTVAR_HEXD(var1, var2) 
+#endif
+
+#ifdef USE_SERIAL_DEBUG_PRINT
+#define PRINTVAR_HEXT(var1, var2, var3) \
+PRINTLINE();				\
+Serial.print("PRINTVAR_HEXT("#var1", "#var2", "#var3")"); \
+Serial.print(" = 0x");    \
+Serial.print(var1, HEX);  \
+Serial.print(" = 0x");    \
+Serial.print(var2, HEX);  \
+Serial.print(" = 0x");    \
+Serial.println(var3, HEX);  
+#else
+#define PRINTVAR_HEXT(var1, var2, var3) 
+#endif
+
+#ifdef USE_SERIAL_DEBUG_PRINT
+#define PRINTVAR(var)     \
+PRINTLINE();			\
+Serial.print("PRINTVAR("#var")"); \
+Serial.print(" = ");      \
+Serial.println(var);  
+#else
+#define PRINTVAR(var) 
+#endif
+
+#ifdef USE_SERIAL_DEBUG_PRINT
+#define PRINTSTR(var)      \
+PRINTLINE();				\
+Serial.println("PRINTVAR_STR("#var")");
+#else
+#define PRINTSTR(var) 
+#endif
 
 #include <Arduino.h>
 #include "Client.h"
@@ -63,7 +136,9 @@ enum EthernetHardwareStatus {
 	EthernetNoHardware,
 	EthernetW5100,
 	EthernetW5200,
-	EthernetW5500
+	EthernetW5500,
+	EthernetW6100,
+	EthernetW5100S
 };
 
 class EthernetUDP;

@@ -108,19 +108,55 @@ int EthernetUDP::parsePacket()
 
 	if (Ethernet.socketRecvAvailable(sockindex) > 0) {
 		//HACK - hand-parse the UDP packet using TCP recv method
-		uint8_t tmpBuf[8];
+		uint8_t tmpBuf[20];
 		int ret=0;
-		//read 8 header bytes and get IP and port from it
-		ret = Ethernet.socketRecv(sockindex, tmpBuf, 8);
-		if (ret > 0) {
-			_remoteIP = tmpBuf;
-			_remotePort = tmpBuf[4];
-			_remotePort = (_remotePort << 8) + tmpBuf[5];
-			_remaining = tmpBuf[6];
-			_remaining = (_remaining << 8) + tmpBuf[7];
+		int i;
 
-			// When we get here, any remaining bytes are the data
-			ret = _remaining;
+		if(W5100.getChip() == 61) {
+			//read 2 header bytes and get one IPv4 or IPv6
+			ret = Ethernet.socketRecv(sockindex, tmpBuf, 2);
+			if(ret > 0) {
+				_remaining = (tmpBuf[0] & (0x7))<<8 | tmpBuf[1];
+
+				if((tmpBuf[0] & W6100_UDP_HEADER_IPV) == W6100_UDP_HEADER_IPV6) {
+					// IPv6 UDP Recived
+					// 0 1
+					// 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
+					// 18 19
+
+					//read 16 header bytes and get IP and port from it
+					ret = Ethernet.socketRecv(sockindex, &tmpBuf[2], 18);
+					_remoteIP = &tmpBuf[2];					
+					_remotePort = (tmpBuf[18]<<8) | tmpBuf[19];
+				} else {
+					// IPv4 UDP Recived
+					// 0 1
+					// 2 3 4 5
+					// 6 7
+
+					//read 6 header bytes and get IP and port from it
+					ret = Ethernet.socketRecv(sockindex, &tmpBuf[2], 6);
+					_remoteIP = &tmpBuf[2];
+					_remotePort = (tmpBuf[6]<<8) | tmpBuf[7];
+				}
+
+				ret = _remaining;
+			}
+		} else {
+			//read 8 header bytes and get IP and port from it
+			ret = Ethernet.socketRecv(sockindex, tmpBuf, 8);
+
+			if (ret > 0) {
+
+				_remoteIP = tmpBuf;
+				_remotePort = tmpBuf[4];
+				_remotePort = (_remotePort << 8) + tmpBuf[5];
+				_remaining = tmpBuf[6];
+				_remaining = (_remaining << 8) + tmpBuf[7];
+
+				// When we get here, any remaining bytes are the data
+				ret = _remaining;
+			}
 		}
 		return ret;
 	}
