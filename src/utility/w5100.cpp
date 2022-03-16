@@ -182,7 +182,7 @@ uint8_t W5100Class::init(void)
 		writeTMSR(0x55);
 		writeRMSR(0x55);
 #endif
-// Try W5100 last.  This simple chip uses fixed 4 byte frames
+// Try W5100. This simple chip uses fixed 4 byte frames
 	// for every 8 bit access.  Terribly inefficient, but so simple
 	// it recovers from "hearing" unsuccessful W5100 or W5200
 	// communication.  W5100 is also the only chip without a VERSIONR

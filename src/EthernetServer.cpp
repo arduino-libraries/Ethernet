@@ -46,7 +46,7 @@ EthernetClient EthernetServer::available()
 	chip = W5100.getChip();
 	if (!chip) return EthernetClient(MAX_SOCK_NUM);
 #if MAX_SOCK_NUM > 4
-	if (chip == 51 || chip == 50) maxindex = 4; // W5100 chip never supports more than 4 sockets
+	if (chip == 51 || chip == 50) maxindex = 4; // W5100+W5100S chips never support more than 4 sockets
 #endif
 	for (uint8_t i=0; i < maxindex; i++) {
 		if (server_port[i] == _port) {
