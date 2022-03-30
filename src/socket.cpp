@@ -417,7 +417,7 @@ static void write_data(uint8_t s, uint16_t data_offset, const uint8_t *data, uin
 
 /**
  * @brief	This function used to send the data in TCP mode
- * @return	1 for success else 0.
+ * @return	number of bytes sent for success 0 in case of error.
  */
 uint16_t EthernetClass::socketSend(uint8_t s, const uint8_t * buf, uint16_t len)
 {
