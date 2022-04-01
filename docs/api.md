@@ -1925,7 +1925,7 @@ none
 #### Returns
 The next byte (or character), or -1 if none is available.
 
-flush()
+client.flush()
 Waits until all outgoing characters in buffer have been sent.
 
 flush() inherits from the Stream utility class.
