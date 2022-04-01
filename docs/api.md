@@ -872,7 +872,7 @@ void loop()
 }
 ```
 
-### `begin()`
+### `server.begin()`
 
 #### Description
 
@@ -931,7 +931,7 @@ void loop()
 }
 ```
 
-### `accept()`
+### `server.accept()`
 
 #### Description
 
@@ -1015,7 +1015,7 @@ void loop() {
 }
 ```
 
-### `available()`
+### `server.available()`
 
 #### Description
 
@@ -1130,7 +1130,7 @@ void loop() {
 }
 ```
 
-### `write()`
+### `server.write()`
 
 #### Description
 
@@ -1197,7 +1197,7 @@ void loop()
 }
 ```
 
-### `print()`
+### `server.print()`
 
 #### Description
 
@@ -1222,7 +1222,7 @@ byte
 print() will return the number of bytes written, though reading that number is optional
 
 
-### `println()`
+### `server.println()`
 
 #### Description
 
@@ -1390,7 +1390,7 @@ void loop()
  
 ```
 
-### `connected()`
+### `client.connected()`
 
 #### Description
 
@@ -1457,7 +1457,7 @@ void loop()
 }
 ```
 
-### `connect()`
+### `client.connect()`
 
 #### Description
 
@@ -1535,7 +1535,7 @@ void loop()
 }
 ```
 
-### `localPort()`
+### `client.localPort()`
 
 #### Description
 
@@ -1592,7 +1592,7 @@ void loop() {
 }
 ```
 
-### `remoteIP()`
+### `client.remoteIP()`
 
 #### Description
 
@@ -1649,7 +1649,7 @@ void loop() {
 }
 ```
 
-### `remotePort()`
+### `client.remotePort()`
 
 #### Description
 
@@ -1706,7 +1706,7 @@ void loop() {
 }
 ```
 
-### `setConnectionTimeout()`
+### `client.setConnectionTimeout()`
 
 #### Description
 
@@ -1761,7 +1761,7 @@ void loop() {
 }
 ```
 
-### `write()`
+### `client.write()`
 
 #### Description
 
@@ -1809,7 +1809,7 @@ BASE (optional): the base in which to print numbers: DEC for decimal (base 10), 
 #### Returns
 byte: returns the number of bytes written, though reading that number is optional
 
-### `println()`
+### `client.println()`
 
 #### Description
 
@@ -1834,7 +1834,7 @@ BASE (optional): the base in which to print numbers: DEC for decimal (base 10), 
 byte: return the number of bytes written, though reading that number is optional
 
 
-### `available()`
+### `client.available()`
 
 #### Description
 
@@ -1903,7 +1903,7 @@ void loop()
 }
 ```
 
-### `read()`
+### `client.read()`
 
 #### Description
 
@@ -1944,7 +1944,7 @@ none
 #### Returns
 none
 
-### `stop()`
+### `client.stop()`
 
 #### Description
 
@@ -1964,9 +1964,9 @@ none
 #### Returns
 none
 
-# EthernetUDP Class
+## EthernetUDP Class
 
-### `UDP.begin()`
+### `EthernetUDP.begin()`
 
 #### Description
 Initializes the ethernet UDP library and network settings.
@@ -2038,7 +2038,7 @@ void loop() {
   
 ```
 
-### `UDP.read()`
+### `EthernetUDP.read()`
 
 #### Description
 Reads UDP data from the specified buffer. If no arguments are given, it will return the next character in the buffer.
@@ -2049,8 +2049,8 @@ This function can only be successfully called after UDP.parsePacket().
 #### Syntax
 
 ```
-UDP.read();
-UDP.read(packetBuffer, MaxSize);
+EthernetUDP.read();
+EthernetUDP.read(packetBuffer, MaxSize);
 ```
 
 #### Parameters
@@ -2115,7 +2115,7 @@ void loop() {
 }
 ```
 
-### `UDP.write()`
+### `EthernetUDP.write()`
 
 #### Description
 Writes UDP data to the remote connection. Must be wrapped between beginPacket() and endPacket(). beginPacket() initializes the packet of data, it is not sent until endPacket() is called.
@@ -2124,8 +2124,8 @@ Writes UDP data to the remote connection. Must be wrapped between beginPacket() 
 #### Syntax
 
 ```
-UDP.write(message);
-UDP.write(buffer, size);
+EthernetUDP.write(message);
+EthernetUDP.write(buffer, size);
 
 ```
 
@@ -2199,7 +2199,7 @@ void loop() {
   
 ```
 
-### `UDP.beginPacket()`
+### `EthernetUDP.beginPacket()`
 
 #### Description
 Starts a connection to write UDP data to the remote connection
@@ -2208,7 +2208,7 @@ Starts a connection to write UDP data to the remote connection
 #### Syntax
 
 ```
-UDP.beginPacket(remoteIP, remotePort);
+EthernetUDP.beginPacket(remoteIP, remotePort);
 ```
 
 #### Parameters
@@ -2251,7 +2251,7 @@ void loop() {
 }
 ```
 
-### `UDP.endPacket()`
+### `EthernetUDP.endPacket()`
 
 #### Description
 Called after writing UDP data to the remote connection.
@@ -2260,7 +2260,7 @@ Called after writing UDP data to the remote connection.
 #### Syntax
 
 ```
-UDP.endPacket();
+EthernetUDP.endPacket();
 ```
 
 #### Parameters
@@ -2303,7 +2303,7 @@ void loop() {
 }
 ```
 
-### `UDP.parsePacket()`
+### `EthernetUDP.parsePacket()`
 
 #### Description
 Checks for the presence of a UDP packet, and reports the size. parsePacket() must be called before reading the buffer with UDP.read().
@@ -2312,7 +2312,7 @@ Checks for the presence of a UDP packet, and reports the size. parsePacket() mus
 #### Syntax
 
 ```
-UDP.parsePacket();
+EthernetUDP.parsePacket();
 ```
 
 #### Parameters
@@ -2361,7 +2361,7 @@ void loop() {
 }
 ```
 
-### `UDP.available()`
+### `EthernetUDP.available()`
 
 #### Description
 
@@ -2375,7 +2375,7 @@ available() inherits from the Stream utility class.
 #### Syntax
 
 ```
-UDP.available()
+EthernetUDP.available()
 
 ```
 
@@ -2442,7 +2442,7 @@ void loop() {
 
 ## UDP class
 
-### `EthernetUDP.stop()`
+### `UDP.stop()`
 
 #### Description
 
@@ -2452,7 +2452,7 @@ Disconnect from the server. Release any resource being used during the UDP sessi
 #### Syntax
 
 ```
-EthernetUDP.stop()
+UDP.stop()
 
 ```
 
