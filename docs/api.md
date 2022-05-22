@@ -6,7 +6,7 @@
 
 #### Description
 
-Initializes the ethernet library and network settings.
+Initializes the Ethernet library and network settings.
 
 With version 1.0, the library supports DHCP. Using Ethernet.begin(mac) with the proper network setup, the Ethernet shield will automatically obtain an IP address. This increases the sketch size significantly. To make sure the DHCP lease is properly renewed when needed, be sure to call Ethernet.maintain() regularly.
 
@@ -29,7 +29,8 @@ Ethernet.begin(mac, ip, dns, gateway, subnet);
 - subnet: the subnet mask of the network (array of 4 bytes). optional: defaults to 255.255.255.0
 
 #### Returns
-The DHCP version of this function, Ethernet.begin(mac), returns an int: 1 on a successful DHCP connection, 0 on failure. The other versions don't return anything.
+- The DHCP version of this function, Ethernet.begin(mac), returns an int: 1 on a successful DHCP connection, 0 on failure. 
+- The other versions don't return anything.
 
 #### Example
 
@@ -68,7 +69,7 @@ Ethernet.dnsServerIP()
 none
 
 #### Returns
-the DNS server IP address for the device (IPAddress).
+- the DNS server IP address for the device (IPAddress).
 
 #### Example
 
@@ -112,7 +113,7 @@ Ethernet.gatewayIP()
 none
 
 #### Returns
-the gateway IP address for the device (IPAddress).
+- the gateway IP address for the device (IPAddress).
 
 #### Example
 
@@ -156,7 +157,7 @@ Ethernet.hardwareStatus()
 none
 
 #### Returns
-which WIZnet Ethernet controller chip was detected during Ethernet.begin() (EthernetHardwareStatus):
+- which WIZnet Ethernet controller chip was detected during Ethernet.begin() (EthernetHardwareStatus):
 
 ```
 EthernetNoHardware
@@ -215,7 +216,7 @@ Ethernet.init(sspin)
 ```
 
 #### Parameters
-sspin: the pin number to use for CS (byte)
+- sspin: the pin number to use for CS (byte)
 
 #### Returns
 Nothing
@@ -255,13 +256,13 @@ Ethernet.linkStatus()
 none
 
 #### Returns
-the link status (EthernetLinkStatus):
+- the link status (EthernetLinkStatus):
 
-Unknown
+- Unknown
 
-LinkON
+- LinkON
 
-LinkOFF
+- LinkOFF
 
 #### Example
 
@@ -308,7 +309,7 @@ Ethernet.localIP();
 none
 
 #### Returns
-the IP address
+- the IP address
 
 #### Example
 
@@ -361,7 +362,7 @@ Ethernet.MACAddress(mac_address)
 ```
 
 #### Parameters
-mac_address: buffer to receive the MAC address (array of 6 bytes)
+- mac_address: buffer to receive the MAC address (array of 6 bytes)
 
 #### Returns
 Nothing
@@ -423,15 +424,15 @@ none
 
 byte:
 
-0: nothing happened
+- 0: nothing happened
 
-1: renew failed
+- 1: renew failed
 
-2: renew success
+- 2: renew success
 
-3: rebind fail
+- 3: rebind fail
 
-4: rebind success
+- 4: rebind success
 
 ### `Ethernet.setDnsServerIP()`
 
@@ -448,7 +449,7 @@ Ethernet.setDnsServerIP(dns_server)
 ```
 
 #### Parameters
-dns_server: the IP address of the DNS server (IPAddress)
+- dns_server: the IP address of the DNS server (IPAddress)
 
 #### Returns
 Nothing
@@ -487,7 +488,7 @@ Ethernet.setGatewayIP(gateway)
 ```
 
 #### Parameters
-gateway: the IP address of the network gateway (IPAddress)
+- gateway: the IP address of the network gateway (IPAddress)
 
 #### Returns
 Nothing
@@ -527,7 +528,7 @@ Ethernet.setLocalIP(local_ip)
 ```
 
 #### Parameters
-local_ip: the IP address to use (IPAddress)
+- local_ip: the IP address to use (IPAddress)
 
 #### Returns
 Nothing
@@ -565,7 +566,7 @@ Ethernet.setMACAddress(mac)
 ```
 
 #### Parameters
-mac: the MAC address to use (array of 6 bytes)
+- mac: the MAC address to use (array of 6 bytes)
 
 #### Returns
 Nothing
@@ -603,7 +604,7 @@ Ethernet.setRetransmissionCount(number)
 ```
 
 #### Parameters
-number: number of transmission attempts the Ethernet controller should make before giving up (byte)
+- number: number of transmission attempts the Ethernet controller should make before giving up (byte)
 
 #### Returns
 Nothing
@@ -640,7 +641,7 @@ Ethernet.setRetransmissionTimeout(milliseconds)
 ```
 
 #### Parameters
-milliseconds: the timeout duration (uint16_t)
+- milliseconds: the timeout duration (uint16_t)
 
 #### Returns
 Nothing
@@ -677,7 +678,7 @@ Ethernet.setSubnetMask(subnet)
 ```
 
 #### Parameters
-subnet: the subnet mask of the network (IPAddress)
+- subnet: the subnet mask of the network (IPAddress)
 
 #### Returns
 Nothing
@@ -721,7 +722,7 @@ Ethernet.subnetMask()
 none
 
 #### Returns
-the subnet mask of the device (IPAddress)
+- the subnet mask of the device (IPAddress)
 
 #### Example
 
@@ -764,7 +765,7 @@ IPAddress(address);
 ```
 
 #### Parameters
-address: a comma delimited list representing the address (4 bytes, ex. 192, 168, 1, 1)
+- address: a comma delimited list representing the address (4 bytes, ex. 192, 168, 1, 1)
 
 #### Returns
 None
@@ -826,7 +827,7 @@ Server(port);
 ```
 
 #### Parameters
-port: the port to listen on (int)
+- port: the port to listen on (int)
 
 #### Returns
 None
@@ -872,7 +873,7 @@ void loop()
 }
 ```
 
-### `begin()`
+### `server.begin()`
 
 #### Description
 
@@ -931,7 +932,7 @@ void loop()
 }
 ```
 
-### `accept()`
+### `server.accept()`
 
 #### Description
 
@@ -953,7 +954,7 @@ server.accept()
 none
 
 #### Returns
-a Client object. If no client has data available for reading, this object will evaluate to false in an if-statement. (EthernetClient).
+- a Client object. If no client has data available for reading, this object will evaluate to false in an if-statement. (EthernetClient).
 
 #### Example
 
@@ -1015,7 +1016,7 @@ void loop() {
 }
 ```
 
-### `available()`
+### `server.available()`
 
 #### Description
 
@@ -1033,7 +1034,7 @@ server.available()
 None
 
 #### Returns
-a Client object; if no Client has data available for reading, this object will evaluate to false in an if-statement (see the example below)
+- a Client object; if no Client has data available for reading, this object will evaluate to false in an if-statement (see the example below)
 
 #### Example
 
@@ -1092,7 +1093,7 @@ if(server)
 none
 
 #### Returns
-whether the server is listening for new clients (bool).
+- whether the server is listening for new clients (bool).
 
 #### Example
 
@@ -1130,7 +1131,7 @@ void loop() {
 }
 ```
 
-### `write()`
+### `server.write()`
 
 #### Description
 
@@ -1146,15 +1147,15 @@ server.write(buf, len)
 ```
 
 #### Parameters
-val: a value to send as a single byte (byte or char)
+- val: a value to send as a single byte (byte or char)
 
-buf: an array to send as a series of bytes (byte or char)
+- buf: an array to send as a series of bytes (byte or char)
 
-len: the length of the buffer
+- len: the length of the buffer
 
 #### Returns
-byte
-write() returns the number of bytes written. It is not necessary to read this.
+- byte
+- write() returns the number of bytes written. It is not necessary to read this.
 
 #### Example
 
@@ -1197,7 +1198,7 @@ void loop()
 }
 ```
 
-### `print()`
+### `server.print()`
 
 #### Description
 
@@ -1213,16 +1214,16 @@ server.print(data, BASE)
 ```
 
 #### Parameters
-data: the data to print (char, byte, int, long, or string)
+- data: the data to print (char, byte, int, long, or string)
 
-BASE (optional): the base in which to print numbers: BIN for binary (base 2), DEC for decimal (base 10), OCT for octal (base 8), HEX for hexadecimal (base 16).
+- BASE (optional): the base in which to print numbers: BIN for binary (base 2), DEC for decimal (base 10), OCT for octal (base 8), HEX for hexadecimal (base 16).
 
 #### Returns
-byte
-print() will return the number of bytes written, though reading that number is optional
+- byte
+- print() will return the number of bytes written, though reading that number is optional
 
 
-### `println()`
+### `server.println()`
 
 #### Description
 
@@ -1239,14 +1240,14 @@ server.println(data, BASE)
 ```
 
 #### Parameters
-data (optional): the data to print (char, byte, int, long, or string)
+- data (optional): the data to print (char, byte, int, long, or string)
 
-BASE (optional): the base in which to print numbers: BIN for binary (base 2), DEC for decimal (base 10), OCT for octal (base 8), HEX for hexadecimal (base 16).
+- BASE (optional): the base in which to print numbers: BIN for binary (base 2), DEC for decimal (base 10), OCT for octal (base 8), HEX for hexadecimal (base 16).
 
 #### Returns
-byte
+- byte
 
-println() will return the number of bytes written, though reading that number is optional
+- println() will return the number of bytes written, though reading that number is optional
 
 ## Client Class
 
@@ -1337,7 +1338,7 @@ if (client)
 none
 
 #### Returns
-boolean : returns true if the specified client is available.
+- boolean : returns true if the specified client is available.
 
 #### Example
 
@@ -1390,7 +1391,7 @@ void loop()
  
 ```
 
-### `connected()`
+### `client.connected()`
 
 #### Description
 
@@ -1408,7 +1409,7 @@ client.connected()
 none
 
 #### Returns
-Returns true if the client is connected, false if not.
+- Returns true if the client is connected, false if not.
 
 #### Example
 
@@ -1457,7 +1458,7 @@ void loop()
 }
 ```
 
-### `connect()`
+### `client.connect()`
 
 #### Description
 
@@ -1474,20 +1475,20 @@ client.connect(URL, port)
 ```
 
 #### Parameters
-ip: the IP address that the client will connect to (array of 4 bytes)
+- ip: the IP address that the client will connect to (array of 4 bytes)
 
-URL: the domain name the client will connect to (string, ex.:"arduino.cc")
+- URL: the domain name the client will connect to (string, ex.:"arduino.cc")
 
-port: the port that the client will connect to (int)
+- port: the port that the client will connect to (int)
 
 #### Returns
-Returns an int (1,-1,-2,-3,-4) indicating connection status :
+- Returns an int (1,-1,-2,-3,-4) indicating connection status :
 
-SUCCESS 1
-TIMED_OUT -1
-INVALID_SERVER -2
-TRUNCATED -3
-INVALID_RESPONSE -4
+- SUCCESS 1
+- TIMED_OUT -1
+- INVALID_SERVER -2
+- TRUNCATED -3
+- INVALID_RESPONSE -4
 #### Example
 
 ```
@@ -1535,7 +1536,7 @@ void loop()
 }
 ```
 
-### `localPort()`
+### `client.localPort()`
 
 #### Description
 
@@ -1553,7 +1554,7 @@ client.localPort
 none
 
 #### Returns
-the local port number the client is connected to (uint16_t).
+- the local port number the client is connected to (uint16_t).
 
 #### Example
 
@@ -1592,7 +1593,7 @@ void loop() {
 }
 ```
 
-### `remoteIP()`
+### `client.remoteIP()`
 
 #### Description
 
@@ -1610,7 +1611,7 @@ client.remoteIP()
 none
 
 #### Returns
-the client's IP address (IPAddress).
+- the client's IP address (IPAddress).
 
 #### Example
 
@@ -1649,7 +1650,7 @@ void loop() {
 }
 ```
 
-### `remotePort()`
+### `client.remotePort()`
 
 #### Description
 
@@ -1667,7 +1668,7 @@ client.remotePort()
 none
 
 #### Returns
-the port of the host that sent the current incoming packet (uint16_t).
+- the port of the host that sent the current incoming packet (uint16_t).
 
 #### Example
 
@@ -1706,7 +1707,7 @@ void loop() {
 }
 ```
 
-### `setConnectionTimeout()`
+### `client.setConnectionTimeout()`
 
 #### Description
 
@@ -1721,7 +1722,7 @@ client.setConnectionTimeout(milliseconds)
 ```
 
 #### Parameters
-milliseconds: the timeout duration for client.connect() and client.stop() (uint16_t)
+- milliseconds: the timeout duration for client.connect() and client.stop() (uint16_t)
 
 #### Returns
 Nothing
@@ -1761,7 +1762,7 @@ void loop() {
 }
 ```
 
-### `write()`
+### `client.write()`
 
 #### Description
 
@@ -1777,15 +1778,15 @@ client.write(buf, len)
 ```
 
 #### Parameters
-val: a value to send as a single byte (byte or char)
+- val: a value to send as a single byte (byte or char)
 
-buf: an array to send as a series of bytes (byte or char)
+- buf: an array to send as a series of bytes (byte or char)
 
-len: the length of the buffer
+- len: the length of the buffer
 
 #### Returns
-byte
-write() returns the number of bytes written. It is not necessary to read this value.
+byte:
+- write() returns the number of bytes written. It is not necessary to read this value.
 
 ### `print()`
 
@@ -1803,13 +1804,13 @@ client.print(data, BASE)
 ```
 
 #### Parameters
-data: the data to print (char, byte, int, long, or string)
+- data: the data to print (char, byte, int, long, or string)
 
-BASE (optional): the base in which to print numbers: DEC for decimal (base 10), OCT for octal (base 8), HEX for hexadecimal (base 16).
+- BASE (optional): the base in which to print numbers: DEC for decimal (base 10), OCT for octal (base 8), HEX for hexadecimal (base 16).
 #### Returns
-byte: returns the number of bytes written, though reading that number is optional
+- byte: returns the number of bytes written, though reading that number is optional
 
-### `println()`
+### `client.println()`
 
 #### Description
 
@@ -1826,15 +1827,15 @@ client.print(data, BASE)
 ```
 
 #### Parameters
-data (optional): the data to print (char, byte, int, long, or string)
+- data (optional): the data to print (char, byte, int, long, or string)
 
-BASE (optional): the base in which to print numbers: DEC for decimal (base 10), OCT for octal (base 8), HEX for hexadecimal (base 16).
+- BASE (optional): the base in which to print numbers: DEC for decimal (base 10), OCT for octal (base 8), HEX for hexadecimal (base 16).
 
 #### Returns
-byte: return the number of bytes written, though reading that number is optional
+- byte: return the number of bytes written, though reading that number is optional
 
 
-### `available()`
+### `client.available()`
 
 #### Description
 
@@ -1854,7 +1855,7 @@ client.available()
 none
 
 #### Returns
-The number of bytes available.
+- The number of bytes available.
 
 #### Example
 
@@ -1903,7 +1904,7 @@ void loop()
 }
 ```
 
-### `read()`
+### `client.read()`
 
 #### Description
 
@@ -1923,9 +1924,9 @@ client.read()
 none
 
 #### Returns
-The next byte (or character), or -1 if none is available.
+- The next byte (or character), or -1 if none is available.
 
-flush()
+### `client.flush()`
 Waits until all outgoing characters in buffer have been sent.
 
 flush() inherits from the Stream utility class.
@@ -1944,7 +1945,7 @@ none
 #### Returns
 none
 
-### `stop()`
+### `client.stop()`
 
 #### Description
 
@@ -1964,9 +1965,9 @@ none
 #### Returns
 none
 
-# EthernetUDP Class
+## EthernetUDP Class
 
-### `UDP.begin()`
+### `EthernetUDP.begin()`
 
 #### Description
 Initializes the ethernet UDP library and network settings.
@@ -1979,10 +1980,10 @@ EthernetUDP.begin(localPort);
 ```
 
 #### Parameters
-localPort: the local port to listen on (int)
+- localPort: the local port to listen on (int)
 
 #### Returns
-1 if successful, 0 if there are no sockets available to use.
+- 1 if successful, 0 if there are no sockets available to use.
 
 #### Example
 
@@ -2038,7 +2039,7 @@ void loop() {
   
 ```
 
-### `UDP.read()`
+### `EthernetUDP.read()`
 
 #### Description
 Reads UDP data from the specified buffer. If no arguments are given, it will return the next character in the buffer.
@@ -2049,16 +2050,16 @@ This function can only be successfully called after UDP.parsePacket().
 #### Syntax
 
 ```
-UDP.read();
-UDP.read(packetBuffer, MaxSize);
+EthernetUDP.read();
+EthernetUDP.read(packetBuffer, MaxSize);
 ```
 
 #### Parameters
-packetBuffer: buffer to hold incoming packets (char)
-MaxSize: maximum size of the buffer (int)
+- packetBuffer: buffer to hold incoming packets (char)
+- MaxSize: maximum size of the buffer (int)
 
 #### Returns
-char : returns the characters in the buffer
+- char : returns the characters in the buffer
 
 #### Example
 
@@ -2107,7 +2108,7 @@ void loop() {
     Serial.print(", port ");
     Serial.println(Udp.remotePort());
 
-    // read the packet into packetBufffer
+    // read the packet into packetBuffer
     Udp.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);
     Serial.println("Contents:");
     Serial.println(packetBuffer);
@@ -2115,7 +2116,7 @@ void loop() {
 }
 ```
 
-### `UDP.write()`
+### `EthernetUDP.write()`
 
 #### Description
 Writes UDP data to the remote connection. Must be wrapped between beginPacket() and endPacket(). beginPacket() initializes the packet of data, it is not sent until endPacket() is called.
@@ -2124,21 +2125,21 @@ Writes UDP data to the remote connection. Must be wrapped between beginPacket() 
 #### Syntax
 
 ```
-UDP.write(message);
-UDP.write(buffer, size);
+EthernetUDP.write(message);
+EthernetUDP.write(buffer, size);
 
 ```
 
 #### Parameters
 
-message: the outgoing message (char)
+- message: the outgoing message (char)
 
-buffer: an array to send as a series of bytes (byte or char)
+- buffer: an array to send as a series of bytes (byte or char)
 
-size: the length of the buffer
+- size: the length of the buffer
 
 #### Returns
-byte : returns the number of characters sent. This does not have to be read
+- byte : returns the number of characters sent. This does not have to be read
 
 #### Example
 
@@ -2199,7 +2200,7 @@ void loop() {
   
 ```
 
-### `UDP.beginPacket()`
+### `EthernetUDP.beginPacket()`
 
 #### Description
 Starts a connection to write UDP data to the remote connection
@@ -2208,14 +2209,14 @@ Starts a connection to write UDP data to the remote connection
 #### Syntax
 
 ```
-UDP.beginPacket(remoteIP, remotePort);
+EthernetUDP.beginPacket(remoteIP, remotePort);
 ```
 
 #### Parameters
 - remoteIP: the IP address of the remote connection (4 bytes)
 - remotePort: the port of the remote connection (int)
 #### Returns
-Returns an int: 1 if successful, 0 if there was a problem resolving the hostname or port.
+- Returns an int: 1 if successful, 0 if there was a problem resolving the hostname or port.
 
 #### Example
 
@@ -2251,7 +2252,7 @@ void loop() {
 }
 ```
 
-### `UDP.endPacket()`
+### `EthernetUDP.endPacket()`
 
 #### Description
 Called after writing UDP data to the remote connection.
@@ -2260,14 +2261,14 @@ Called after writing UDP data to the remote connection.
 #### Syntax
 
 ```
-UDP.endPacket();
+EthernetUDP.endPacket();
 ```
 
 #### Parameters
 None
 
 #### Returns
-Returns an int: 1 if the packet was sent successfully, 0 if there was an error
+- Returns an int: 1 if the packet was sent successfully, 0 if there was an error
 
 #### Example
 
@@ -2303,7 +2304,7 @@ void loop() {
 }
 ```
 
-### `UDP.parsePacket()`
+### `EthernetUDP.parsePacket()`
 
 #### Description
 Checks for the presence of a UDP packet, and reports the size. parsePacket() must be called before reading the buffer with UDP.read().
@@ -2312,14 +2313,14 @@ Checks for the presence of a UDP packet, and reports the size. parsePacket() mus
 #### Syntax
 
 ```
-UDP.parsePacket();
+EthernetUDP.parsePacket();
 ```
 
 #### Parameters
 None
 
 #### Returns
-int: the size of a received UDP packet
+- int: the size of a received UDP packet
 
 #### Example
 
@@ -2361,7 +2362,7 @@ void loop() {
 }
 ```
 
-### `UDP.available()`
+### `EthernetUDP.available()`
 
 #### Description
 
@@ -2375,7 +2376,7 @@ available() inherits from the Stream utility class.
 #### Syntax
 
 ```
-UDP.available()
+EthernetUDP.available()
 
 ```
 
@@ -2383,7 +2384,7 @@ UDP.available()
 None
 
 #### Returns
-the number of bytes available to read
+- the number of bytes available to read
 
 #### Example
 
@@ -2432,7 +2433,7 @@ void loop() {
     Serial.print(", port ");
     Serial.println(Udp.remotePort());
 
-    // read the packet into packetBufffer
+    // read the packet into packetBuffer
     Udp.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);
     Serial.println("Contents:");
     Serial.println(packetBuffer);
@@ -2442,7 +2443,7 @@ void loop() {
 
 ## UDP class
 
-### `EthernetUDP.stop()`
+### `UDP.stop()`
 
 #### Description
 
@@ -2452,7 +2453,7 @@ Disconnect from the server. Release any resource being used during the UDP sessi
 #### Syntax
 
 ```
-EthernetUDP.stop()
+UDP.stop()
 
 ```
 
@@ -2480,7 +2481,7 @@ UDP.remoteIP();
 None
 
 #### Returns
-4 bytes : the IP address of the remote connection
+- 4 bytes : the IP address of the remote connection
 
 #### Example
 
@@ -2548,7 +2549,7 @@ UDP.remotePort();
 None
 
 #### Returns
-int : the port of the UDP connection to a remote host
+- int : the port of the UDP connection to a remote host
 
 #### Example
 
@@ -2597,7 +2598,7 @@ void loop() {
     Serial.print(", port ");
     Serial.println(Udp.remotePort());
 
-    // read the packet into packetBufffer
+    // read the packet into packetBuffer
     Udp.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);
     Serial.println("Contents:");
     Serial.println(packetBuffer);

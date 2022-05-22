@@ -1,5 +1,5 @@
 /*
-  Telnet client
+ Telnet client
 
  This sketch connects to a telnet server (http://www.google.com)
  using an Arduino WIZnet Ethernet shield.  You'll need a telnet server
