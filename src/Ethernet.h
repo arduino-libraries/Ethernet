@@ -108,6 +108,10 @@ public:
 	friend class EthernetClient;
 	friend class EthernetServer;
 	friend class EthernetUDP;
+
+	// Get SPI class handle
+	static   SPIClass& getSPIinstance(void);
+
 private:
 	// Opens a socket(TCP or UDP or IP_RAW mode)
 	static uint8_t socketBegin(uint8_t protocol, uint16_t port);
