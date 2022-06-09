@@ -49,6 +49,7 @@
 
 
 #include <Arduino.h>
+#include <SPI.h>
 #include "Client.h"
 #include "Server.h"
 #include "Udp.h"
