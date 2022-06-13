@@ -259,6 +259,12 @@ public:
 	EthernetClient available();
 	EthernetClient accept();
 	virtual void begin();
+#ifdef ESP32
+	void begin(uint16_t port)
+	{
+		_port = port;
+	}
+#endif
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buf, size_t size);
 	virtual operator bool();
