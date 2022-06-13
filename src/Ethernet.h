@@ -49,6 +49,7 @@
 
 
 #include <Arduino.h>
+#include <SPI.h>
 #include "Client.h"
 #include "Server.h"
 #include "Udp.h"
@@ -108,6 +109,13 @@ public:
 	friend class EthernetClient;
 	friend class EthernetServer;
 	friend class EthernetUDP;
+
+#ifdef ARDUINO_ARCH_SAMD
+	static   SPIClassSAMD& getSPIinstance(void); // Get SPI class handle
+#else
+	static   SPIClass& getSPIinstance(void); // Get SPI class handle
+#endif
+
 private:
 	// Opens a socket(TCP or UDP or IP_RAW mode)
 	static uint8_t socketBegin(uint8_t protocol, uint16_t port);
