@@ -220,6 +220,26 @@ public:
 	uint8_t status();
 	virtual int connect(IPAddress ip, uint16_t port);
 	virtual int connect(const char *host, uint16_t port);
+#ifdef ESP32
+	int connect(IPAddress ip, uint16_t port, int timeout)
+	{
+		//possible implemented return values of return are only 0 (error) or 1 (ok).
+		if(!connect(ip, port)) {
+			//indicate error
+			return 0;
+		}
+		setConnectionTimeout(timeout);
+		return 1;
+	}
+	int connect(const char* host, uint16_t port, int timeout)
+	{
+		if(!connect(host, port)) {
+			return 0;
+		}
+		setConnectionTimeout(timeout);
+		return 1;
+	}
+#endif
 	virtual int availableForWrite(void);
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buf, size_t size);
@@ -259,6 +279,12 @@ public:
 	EthernetClient available();
 	EthernetClient accept();
 	virtual void begin();
+#ifdef ESP32
+	void begin(uint16_t port)
+	{
+		_port = port;
+	}
+#endif
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buf, size_t size);
 	virtual operator bool();
