@@ -53,6 +53,9 @@
 #include "Server.h"
 #include "Udp.h"
 
+#define DEFAULT_HOST_NAME "WIZnet"
+#define HOST_NAME_MAX_LEN 20 // Max 30 or change the DHCP local buffer size
+
 enum EthernetLinkStatus {
 	Unknown,
 	LinkON,
@@ -75,6 +78,8 @@ class EthernetClass {
 private:
 	static IPAddress _dnsServerAddress;
 	static DhcpClass* _dhcp;
+	static char _hostName[HOST_NAME_MAX_LEN];
+	static bool _manualHostName;
 public:
 	// Initialise the Ethernet shield to use the provided MAC address and
 	// gain the rest of the configuration through DHCP.
@@ -104,6 +109,8 @@ public:
 	void setDnsServerIP(const IPAddress dns_server) { _dnsServerAddress = dns_server; }
 	void setRetransmissionTimeout(uint16_t milliseconds);
 	void setRetransmissionCount(uint8_t num);
+  	void setHostName(const char *hostName);
+	char* getHostName();
 
 	friend class EthernetClient;
 	friend class EthernetServer;
@@ -142,6 +149,7 @@ private:
 	static bool socketSendUDP(uint8_t s);
 	// Initialize the "random" source port number
 	static void socketPortRand(uint16_t n);
+	static void generateDefaultHostName(uint8_t *mac);
 };
 
 extern EthernetClass Ethernet;
@@ -275,6 +283,7 @@ private:
 	uint32_t _dhcpInitialTransactionId;
 	uint32_t _dhcpTransactionId;
 	uint8_t  _dhcpMacAddr[6];
+	const char* _dhcpHostName;
 #ifdef __arm__
 	uint8_t  _dhcpLocalIp[4] __attribute__((aligned(4)));
 	uint8_t  _dhcpSubnetMask[4] __attribute__((aligned(4)));
@@ -312,7 +321,7 @@ public:
 	IPAddress getDhcpServerIp();
 	IPAddress getDnsServerIp();
 
-	int beginWithDHCP(uint8_t *, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
+	int beginWithDHCP(uint8_t *, const char *hostName, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
 	int checkLease();
 };
 
