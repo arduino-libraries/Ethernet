@@ -233,7 +233,16 @@ void EthernetClass::setRetransmissionCount(uint8_t num)
 
 void EthernetClass::generateDefaultHostName(uint8_t *mac) {
 	// Generate a default host name based on the MAC address
-	sprintf_P(_hostName, PSTR("%s%02X%02X%02X"), DEFAULT_HOST_NAME, mac[3], mac[4], mac[5]);
+	strcpy_P(_hostName, PSTR(DEFAULT_HOST_NAME));
+	
+	// Append last 3 bytes of MAC address to the name
+	PGM_P hexChars = PSTR("0123456789ABCDEF");
+	for (int i = 0; i <= 2; i++)
+	{
+		_hostName[DEFAULT_HOST_NAME_LENGTH + i * 2] = pgm_read_byte_near(hexChars + (mac[3 + i] >> 4));
+		_hostName[DEFAULT_HOST_NAME_LENGTH + i * 2 + 1] = pgm_read_byte_near(hexChars + (mac[3 + i] & 0x0F));
+	}
+	_hostName[DEFAULT_HOST_NAME_LENGTH + 6] = '\0';
 }
 
 void EthernetClass::setHostName(const char *dhcpHost) {
