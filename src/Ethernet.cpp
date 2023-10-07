@@ -22,6 +22,7 @@
 #include "Ethernet.h"
 #include "utility/w5100.h"
 #include "Dhcp.h"
+#include "Dns.h"
 
 IPAddress EthernetClass::_dnsServerAddress;
 DhcpClass* EthernetClass::_dhcp = NULL;
@@ -224,6 +225,12 @@ void EthernetClass::setRetransmissionCount(uint8_t num)
 	SPI.endTransaction();
 }
 
+int EthernetClass::hostByName(const char* hostname, IPAddress& result)
+{
+	DNSClient dns;
+	dns.begin(_dnsServerAddress);
+	return dns.getHostByName(hostname, result);
+}
 
 
 
