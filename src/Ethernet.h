@@ -47,8 +47,10 @@
 // does not always seem to work in practice (maybe WIZnet bugs?)
 //#define ETHERNET_LARGE_BUFFERS
 
+#include <string>
 
 #include <Arduino.h>
+
 #include "Client.h"
 #include "Server.h"
 #include "Udp.h"
@@ -80,6 +82,7 @@ public:
 	// gain the rest of the configuration through DHCP.
 	// Returns 0 if the DHCP configuration failed, and 1 if it succeeded
 	static int begin(uint8_t *mac, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
+	static int begin(uint8_t *mac, const char* hostName, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
 	static int maintain();
 	static EthernetLinkStatus linkStatus();
 	static EthernetHardwareStatus hardwareStatus();
@@ -303,7 +306,7 @@ private:
 	void presend_DHCP();
 	void send_DHCP_MESSAGE(uint8_t, uint16_t);
 	void printByte(char *, uint8_t);
-
+	const char* _hostName;
 	uint8_t parseDHCPResponse(unsigned long responseTimeout, uint32_t& transactionId);
 public:
 	IPAddress getLocalIp();
@@ -313,6 +316,7 @@ public:
 	IPAddress getDnsServerIp();
 
 	int beginWithDHCP(uint8_t *, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
+	int beginWithDHCP(uint8_t *, const char* hostName, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
 	int checkLease();
 };
 
