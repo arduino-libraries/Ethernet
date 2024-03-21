@@ -1468,27 +1468,21 @@ Connects to a specified IP address and port. The return value indicates success 
 #### Syntax
 
 ```
-client.connect()
 client.connect(ip, port)
-client.connect(URL, port)
+client.connect(servername, port)
 
 ```
 
 #### Parameters
 - ip: the IP address that the client will connect to (array of 4 bytes)
 
-- URL: the domain name the client will connect to (string, ex.:"arduino.cc")
+- servername: the domain name the client will connect to (string, ex.:"arduino.cc")
 
 - port: the port that the client will connect to (int)
 
 #### Returns
-- Returns an int (1,-1,-2,-3,-4) indicating connection status :
+- Returns true if the connection succeeds, false if not.
 
-- SUCCESS 1
-- TIMED_OUT -1
-- INVALID_SERVER -2
-- TRUNCATED -3
-- INVALID_RESPONSE -4
 #### Example
 
 ```
