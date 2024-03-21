@@ -25,6 +25,8 @@
 
 IPAddress EthernetClass::_dnsServerAddress;
 DhcpClass* EthernetClass::_dhcp = NULL;
+bool EthernetClass::_manualHostName = false;
+char EthernetClass::_hostName[HOST_NAME_MAX_LEN] = "";
 
 int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
 {
@@ -38,8 +40,13 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
 	W5100.setIPAddress(IPAddress(0,0,0,0).raw_address());
 	SPI.endTransaction();
 
+	// Generate a default host name based on the MAC address if not already set by user
+	if(!_manualHostName) {
+		generateDefaultHostName(mac);
+	}
+
 	// Now try to get our config info from a DHCP server
-	int ret = _dhcp->beginWithDHCP(mac, timeout, responseTimeout);
+	int ret = _dhcp->beginWithDHCP(mac, _hostName, timeout, responseTimeout);
 	if (ret == 1) {
 		// We've successfully found a DHCP server and got our configuration
 		// info, so set things accordingly
@@ -224,6 +231,32 @@ void EthernetClass::setRetransmissionCount(uint8_t num)
 	SPI.endTransaction();
 }
 
+void EthernetClass::generateDefaultHostName(uint8_t *mac) {
+	// Generate a default host name based on the MAC address
+	strcpy_P(_hostName, PSTR(DEFAULT_HOST_NAME));
+	
+	// Append last 3 bytes of MAC address to the name
+	PGM_P hexChars = PSTR("0123456789ABCDEF");
+	for (int i = 0; i <= 2; i++)
+	{
+		_hostName[DEFAULT_HOST_NAME_LENGTH + i * 2] = pgm_read_byte_near(hexChars + (mac[3 + i] >> 4));
+		_hostName[DEFAULT_HOST_NAME_LENGTH + i * 2 + 1] = pgm_read_byte_near(hexChars + (mac[3 + i] & 0x0F));
+	}
+	_hostName[DEFAULT_HOST_NAME_LENGTH + 6] = '\0';
+}
+
+void EthernetClass::setHostName(const char *dhcpHost) {
+	// Copy the host name and ensure it is null terminated
+	strncpy(_hostName, dhcpHost, HOST_NAME_MAX_LEN);
+    _hostName[HOST_NAME_MAX_LEN - 1] = '\0';
+
+	// Indicate that a host name has been set manually
+	_manualHostName = true;
+}
+
+char* EthernetClass::getHostName() {
+	return _hostName;
+}
 
 
 
