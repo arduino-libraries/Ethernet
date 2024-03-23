@@ -34,58 +34,75 @@ jobs:
           - fqbn: arduino:avr:nano
             platforms: |
               - name: arduino:avr
+            artifact-name-suffix: arduino-avr-nano
           - fqbn: arduino:avr:mega
             platforms: |
               - name: arduino:avr
+            artifact-name-suffix: arduino-avr-mega
           - fqbn: arduino:avr:leonardo
             platforms: |
               - name: arduino:avr
+            artifact-name-suffix: arduino-avr-leonardo
           - fqbn: arduino:megaavr:uno2018
             platforms: |
               - name: arduino:megaavr
+            artifact-name-suffix: arduino-megaavr-uno2018
           - fqbn: arduino:megaavr:nona4809
             platforms: |
               - name: arduino:megaavr
+            artifact-name-suffix: arduino-megaavr-nona4809
           - fqbn: arduino:sam:arduino_due_x_dbg
             platforms: |
               - name: arduino:sam
+            artifact-name-suffix: arduino-sam-arduino_due_x_dbg
           - fqbn: arduino:samd:arduino_zero_edbg
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-arduino_zero_edbg
           - fqbn: arduino:samd:mkr1000
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkr1000
           - fqbn: arduino:samd:mkrzero
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrzero
           - fqbn: arduino:samd:mkrwifi1010
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrwifi100
           - fqbn: arduino:samd:mkrfox1200
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkr1200
           - fqbn: arduino:samd:mkrwan1300
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrwan1300
           - fqbn: arduino:samd:mkrwan1310
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrwan1310
           - fqbn: arduino:samd:mkrgsm1400
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrgsm1400
           - fqbn: arduino:samd:mkrnb1500
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrnb1500
           - fqbn: arduino:samd:mkrvidor4000
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrvidor4000
           - fqbn: arduino:samd:nano_33_iot
             platforms: |
               - name: arduino:samd
+            artifact-name-suffix: arduino-samd-nano_33_iot
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Compile examples
         uses: arduino/compile-sketches@v1
@@ -104,8 +121,8 @@ jobs:
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
 
       - name: Save sketches report as workflow artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           path: ${{ env.SKETCHES_REPORTS_PATH }}
-          name: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: sketches-report-${{ matrix.board.artifact-name-suffix }}
