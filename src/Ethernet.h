@@ -47,8 +47,6 @@
 // does not always seem to work in practice (maybe WIZnet bugs?)
 //#define ETHERNET_LARGE_BUFFERS
 
-#include <string>
-
 #include <Arduino.h>
 
 #include "Client.h"
