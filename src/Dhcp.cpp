@@ -209,6 +209,9 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 		printByte((char*)&(buffer[24]), _dhcpMacAddr[3]);
 		printByte((char*)&(buffer[26]), _dhcpMacAddr[4]);
 		printByte((char*)&(buffer[28]), _dhcpMacAddr[5]);
+
+		//put data in W5100 transmit buffer
+		_dhcpUdpSocket.write(buffer, 30);
 	}
 
 	if (messageType == DHCP_REQUEST) {
