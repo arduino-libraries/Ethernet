@@ -6,7 +6,7 @@
 #include "Ethernet.h"
 #include "Dns.h"
 #include "utility/w5100.h"
-
+extern 	void ethernetIdle(void);
 
 #define SOCKET_NONE              255
 // Various flags and header field values for a DNS message
@@ -120,6 +120,8 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t
 					while ((wait_retries < 3) && (ret == TIMED_OUT)) {
 						ret = ProcessResponse(timeout, aResult);
 						wait_retries++;
+						ethernetIdle();
+						delay(1);
 					}
 				}
 			}
@@ -220,7 +222,7 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
 		if ((millis() - startTime) > aTimeout) {
 			return TIMED_OUT;
 		}
-		delay(50);
+		ethernetIdle();
 	}
 
 	// We've had a reply!

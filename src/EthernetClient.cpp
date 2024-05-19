@@ -22,6 +22,7 @@
 #include "Ethernet.h"
 #include "Dns.h"
 #include "utility/w5100.h"
+extern 	void ethernetIdle(void);
 
 int EthernetClient::connect(const char * host, uint16_t port)
 {
@@ -62,6 +63,7 @@ int EthernetClient::connect(IPAddress ip, uint16_t port)
 		if (stat == SnSR::CLOSE_WAIT) return 1;
 		if (stat == SnSR::CLOSED) return 0;
 		if (millis() - start > _timeout) break;
+		ethernetIdle();
 		delay(1);
 	}
 	Ethernet.socketClose(_sockindex);
@@ -143,6 +145,7 @@ void EthernetClient::stop()
 			_sockindex = MAX_SOCK_NUM;
 			return; // exit the loop
 		}
+		ethernetIdle();
 		delay(1);
 	} while (millis() - start < _timeout);
 
