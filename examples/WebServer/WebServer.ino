@@ -18,7 +18,7 @@
  */
 
 #include <SPI.h>
-#include <Ethernet.h>
+#include <EthernetSP.h>
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
@@ -40,6 +40,21 @@ void setup() {
   //Ethernet.init(20);  // Teensy++ 2.0
   //Ethernet.init(15);  // ESP8266 with Adafruit FeatherWing Ethernet
   //Ethernet.init(33);  // ESP32 with Adafruit FeatherWing Ethernet
+
+  // ====================================================================
+  // W5500-Ether add-on for Spresense
+
+  // Jumper setting is SJ1=12, use D21/EMMC_DATA3
+  W5500ETH_reset(SJ1_12);
+
+  // Jumper setting is SJ1=23, use D26/I2S_BCK
+  // W5500ETH_reset(SJ1_23);
+
+  // When Jumper setting is SJ2=23, init() is not need.
+
+  // Jumper setting is SJ2=12, use D19/I2S_DIN
+  // Ethernet.init(SJ2_12);
+  // ====================================================================
 
   // Open serial communications and wait for port to open:
   Serial.begin(9600);

@@ -22,6 +22,10 @@
 #include "Ethernet.h"
 #include "utility/w5100.h"
 
+#if defined(ARDUINO_ARCH_SPRESENSE)
+#define SPI SPI5
+#endif
+
 #if ARDUINO >= 156 && !defined(ARDUINO_ARCH_PIC32)
 extern void yield(void);
 #else
@@ -536,3 +540,5 @@ bool EthernetClass::socketSendUDP(uint8_t s)
 	/* Sent ok */
 	return true;
 }
+
+#undef SPI

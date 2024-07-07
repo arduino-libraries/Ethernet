@@ -12,6 +12,9 @@
 #include "Ethernet.h"
 #include "w5100.h"
 
+#if defined(ARDUINO_ARCH_SPRESENSE)
+#define SPI SPI5
+#endif
 
 /***************************************************/
 /**            Default SS pin setting             **/
@@ -218,6 +221,10 @@ uint8_t W5100Class::softReset(void)
 
 uint8_t W5100Class::isW5100(void)
 {
+#if defined(ARDUINO_ARCH_SPRESENSE)
+	// ignore to use W5500-Ether.
+	return 0;
+#else
 	chip = 51;
 	//Serial.println("w5100.cpp: detect W5100 chip");
 	if (!softReset()) return 0;
@@ -229,10 +236,15 @@ uint8_t W5100Class::isW5100(void)
 	if (readMR() != 0x00) return 0;
 	//Serial.println("chip is W5100");
 	return 1;
+#endif
 }
 
 uint8_t W5100Class::isW5200(void)
 {
+#if defined(ARDUINO_ARCH_SPRESENSE)
+	// ignore to use W5500-Ether.
+	return 0;
+#else
 	chip = 52;
 	//Serial.println("w5100.cpp: detect W5200 chip");
 	if (!softReset()) return 0;
@@ -248,6 +260,7 @@ uint8_t W5100Class::isW5200(void)
 	if (ver != 3) return 0;
 	//Serial.println("chip is W5200");
 	return 1;
+#endif
 }
 
 uint8_t W5100Class::isW5500(void)
@@ -368,6 +381,17 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 			}
 			SPI.transfer(cmd, len + 3);
 		} else {
+#if defined(ARDUINO_ARCH_SPRESENSE)
+			// Spresense SPI peripheral must send one transfer, one time.
+			uint8_t *txbuf = (uint8_t*)(malloc(3 + len));
+			if (txbuf)
+			{
+				memcpy(txbuf, cmd, 3);
+				memcpy(txbuf + 3, buf, len);
+				SPI.transfer(txbuf, 3 + len);
+				free(txbuf);
+			}
+#else
 			SPI.transfer(cmd, 3);
 #ifdef SPI_HAS_TRANSFER_BUF
 			SPI.transfer(buf, NULL, len);
@@ -376,6 +400,7 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 			for (uint16_t i=0; i < len; i++) {
 				SPI.transfer(buf[i]);
 			}
+#endif
 #endif
 		}
 		resetSS();
@@ -457,9 +482,21 @@ uint16_t W5100Class::read(uint16_t addr, uint8_t *buf, uint16_t len)
 			cmd[2] = ((addr >> 6) & 0xE0) | 0x18; // 2K buffers
 			#endif
 		}
+		#if defined(ARDUINO_ARCH_SPRESENSE)
+		uint8_t *rxbuf = (uint8_t*)(malloc(3 + len));
+		if (rxbuf)
+		{
+			memset(rxbuf, 0, 3 + len);
+			memcpy(rxbuf, cmd, 3);
+			SPI.transfer(rxbuf, 3 + len);// [in,out] buf Buffer to send and receive.
+			memcpy(buf, rxbuf + 3, len);
+			free(rxbuf);
+		}
+		#else
 		SPI.transfer(cmd, 3);
 		memset(buf, 0, len);
 		SPI.transfer(buf, len);
+		#endif
 		resetSS();
 	}
 	return len;
@@ -472,3 +509,5 @@ void W5100Class::execCmdSn(SOCKET s, SockCMD _cmd)
 	// Wait for command to complete
 	while (readSnCR(s)) ;
 }
+
+#undef SPI

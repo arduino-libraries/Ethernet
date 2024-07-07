@@ -23,6 +23,10 @@
 #include "utility/w5100.h"
 #include "Dhcp.h"
 
+#if defined(ARDUINO_ARCH_SPRESENSE)
+#define SPI SPI5
+#endif
+
 IPAddress EthernetClass::_dnsServerAddress;
 DhcpClass* EthernetClass::_dhcp = NULL;
 
@@ -234,3 +238,5 @@ void EthernetClass::setRetransmissionCount(uint8_t num)
 
 
 EthernetClass Ethernet;
+
+#undef SPI

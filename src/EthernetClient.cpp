@@ -23,6 +23,10 @@
 #include "Dns.h"
 #include "utility/w5100.h"
 
+#if defined(ARDUINO_ARCH_SPRESENSE)
+#define SPI SPI5
+#endif
+
 int EthernetClient::connect(const char * host, uint16_t port)
 {
 	DNSClient dns; // Look up the host first
@@ -211,3 +215,5 @@ uint16_t EthernetClient::remotePort()
 	SPI.endTransaction();
 	return port;
 }
+
+#undef SPI

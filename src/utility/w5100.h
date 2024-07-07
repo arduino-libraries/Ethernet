@@ -33,6 +33,12 @@
 #error "Ethernet.h must be included before w5100.h"
 #endif
 
+// Spresense with W5500-Ether add-on. When SJ2 is "2-3 short", must be SPI_MODE3
+#if defined(ARDUINO_ARCH_SPRESENSE)
+#undef SPI_ETHERNET_SETTINGS
+#define SPI_ETHERNET_SETTINGS SPISettings(13000000, MSBFIRST, SPI_MODE3)
+#define SPI5_CS 24
+#endif
 
 // Arduino 101's SPI can not run faster than 8 MHz.
 #if defined(ARDUINO_ARCH_ARC32)
@@ -431,6 +437,19 @@ private:
 	}
 	inline static void resetSS() {
 		*(ss_pin_reg+6) = ss_pin_mask;
+	}
+#elif defined(ARDUINO_ARCH_SPRESENSE)
+	inline static void initSS() {
+		if (ss_pin != SPI5_CS)
+			pinMode(ss_pin, OUTPUT);
+	}
+	inline static void setSS() {
+		if (ss_pin != SPI5_CS)
+			digitalWrite(ss_pin, LOW);
+	}
+	inline static void resetSS() {
+		if (ss_pin != SPI5_CS)
+			digitalWrite(ss_pin, HIGH);
 	}
 #else
 	inline static void initSS() {
