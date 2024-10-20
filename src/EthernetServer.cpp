@@ -46,7 +46,7 @@ EthernetClient EthernetServer::available()
 	chip = W5100.getChip();
 	if (!chip) return EthernetClient(MAX_SOCK_NUM);
 #if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
+	if (chip == 51 || chip == 50) maxindex = 4; // W5100+W5100S chips never support more than 4 sockets
 #endif
 	for (uint8_t i=0; i < maxindex; i++) {
 		if (server_port[i] == _port) {
@@ -81,7 +81,7 @@ EthernetClient EthernetServer::accept()
 	chip = W5100.getChip();
 	if (!chip) return EthernetClient(MAX_SOCK_NUM);
 #if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
+	if (chip == 51 || chip == 50) maxindex = 4; // W5100 chip never supports more than 4 sockets
 #endif
 	for (uint8_t i=0; i < maxindex; i++) {
 		if (server_port[i] == _port) {
@@ -108,7 +108,7 @@ EthernetServer::operator bool()
 {
 	uint8_t maxindex=MAX_SOCK_NUM;
 #if MAX_SOCK_NUM > 4
-	if (W5100.getChip() == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
+	if (W5100.getChip() == 51 || W5100.getChip() == 50) maxindex = 4; // W5100 chip never supports more than 4 sockets
 #endif
 	for (uint8_t i=0; i < maxindex; i++) {
 		if (server_port[i] == _port) {
@@ -165,7 +165,7 @@ size_t EthernetServer::write(const uint8_t *buffer, size_t size)
 	chip = W5100.getChip();
 	if (!chip) return 0;
 #if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
+	if (chip == 51 || chip == 50) maxindex = 4; // W5100 chip never supports more than 4 sockets
 #endif
 	available();
 	for (uint8_t i=0; i < maxindex; i++) {
