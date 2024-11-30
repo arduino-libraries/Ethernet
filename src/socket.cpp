@@ -349,16 +349,11 @@ int EthernetClass::socketRecv(uint8_t s, uint8_t *buf, int16_t len)
 
 uint16_t EthernetClass::socketRecvAvailable(uint8_t s)
 {
-	uint16_t ret = state[s].RX_RSR;
-	if (ret == 0) {
-		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-		uint16_t rsr = getSnRX_RSR(s);
-		SPI.endTransaction();
-		ret = rsr - state[s].RX_inc;
-		state[s].RX_RSR = ret;
-		//Serial.printf("sockRecvAvailable s=%d, RX_RSR=%d\n", s, ret);
-	}
-	return ret;
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  uint16_t rsr = getSnRX_RSR(s);
+  SPI.endTransaction();
+  state[s].RX_RSR = rsr - state[s].RX_inc;
+  return state[s].RX_RSR;
 }
 
 // get the first byte in the receive queue (no checking)
