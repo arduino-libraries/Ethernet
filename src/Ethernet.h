@@ -92,16 +92,20 @@ public:
 	static void init(uint8_t sspin = 10);
 
 	static void MACAddress(uint8_t *mac_address);
+	static uint8_t* macAddress(uint8_t* mac) { MACAddress(mac); return mac; }
 	static IPAddress localIP();
 	static IPAddress subnetMask();
 	static IPAddress gatewayIP();
 	static IPAddress dnsServerIP() { return _dnsServerAddress; }
+	static IPAddress dnsIP(int n = 0) { return (n == 0) ? _dnsServerAddress : IPAddress(); }
 
 	void setMACAddress(const uint8_t *mac_address);
 	void setLocalIP(const IPAddress local_ip);
 	void setSubnetMask(const IPAddress subnet);
 	void setGatewayIP(const IPAddress gateway);
 	void setDnsServerIP(const IPAddress dns_server) { _dnsServerAddress = dns_server; }
+	void setDNS(IPAddress dns_server)  { _dnsServerAddress = dns_server; }
+
 	void setRetransmissionTimeout(uint16_t milliseconds);
 	void setRetransmissionCount(uint8_t num);
 
