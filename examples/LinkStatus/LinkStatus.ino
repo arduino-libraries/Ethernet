@@ -1,5 +1,6 @@
 /*
   Link Status
+
   This sketch prints the Ethernet link status. When the
   Ethernet cable is connected the link status should go to "ON".
   NOTE: Only WIZnet W5200 and W5500 are capable of reporting

@@ -1,5 +1,6 @@
 /*
- UDPSendReceiveString:
+ UDPSendReceiveString
+
  This sketch receives UDP message strings, prints them to the serial port
  and sends an "acknowledge" string back to the sender
 
@@ -82,7 +83,7 @@ void loop() {
     Serial.print(", port ");
     Serial.println(Udp.remotePort());
 
-    // read the packet into packetBufffer
+    // read the packet into packetBuffer
     Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
     Serial.println("Contents:");
     Serial.println(packetBuffer);

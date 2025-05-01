@@ -1,5 +1,5 @@
 /*
-  Telnet client
+ Telnet client
 
  This sketch connects to a telnet server (http://www.google.com)
  using an Arduino WIZnet Ethernet shield.  You'll need a telnet server
@@ -7,7 +7,7 @@
  Processing's ChatServer example (part of the Network library) works well,
  running on port 10002. It can be found as part of the examples
  in the Processing application, available at
- http://processing.org/
+ https://processing.org/
 
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13

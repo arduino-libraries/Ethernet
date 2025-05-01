@@ -1,5 +1,5 @@
 /*
-  SCP1000 Barometric Pressure Sensor Display
+ SCP1000 Barometric Pressure Sensor Display
 
  Serves the output of a Barometric Pressure Sensor as a web page.
  Uses the SPI library. For details on the sensor, see:
@@ -216,7 +216,7 @@ void writeRegister(byte registerName, byte registerValue) {
 
 //Read register from the SCP1000:
 unsigned int readRegister(byte registerName, int numBytes) {
-  byte inByte = 0;           // incoming from  the SPI read
+  byte inByte = 0;           // incoming from the SPI read
   unsigned int result = 0;   // result to return
 
   // SCP1000 expects the register name in the upper 6 bits
