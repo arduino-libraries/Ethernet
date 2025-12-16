@@ -25,11 +25,15 @@
 
 IPAddress EthernetClass::_dnsServerAddress;
 DhcpClass* EthernetClass::_dhcp = NULL;
+char EthernetClass::_hostname[32] = {0};
 
 int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
 {
 	static DhcpClass s_dhcp;
 	_dhcp = &s_dhcp;
+	if (_hostname[0] != 0) {
+		_dhcp->setCustomHostname(_hostname);
+	}
 
 	// Initialise the basic info
 	if (W5100.init() == 0) return 0;
@@ -176,6 +180,16 @@ IPAddress EthernetClass::gatewayIP()
 	W5100.getGatewayIp(ret.raw_address());
 	SPI.endTransaction();
 	return ret;
+}
+
+void EthernetClass::setHostname(const char* hostname)
+{
+	if (strlen(hostname) < 32) {
+		strcpy(_hostname, hostname);
+		if (_dhcp) {
+			_dhcp->setCustomHostname(_hostname);
+		}
+	}
 }
 
 void EthernetClass::setMACAddress(const uint8_t *mac_address)
