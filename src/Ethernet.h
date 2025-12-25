@@ -80,7 +80,7 @@ public:
 	// gain the rest of the configuration through DHCP.
 	// Returns 0 if the DHCP configuration failed, and 1 if it succeeded
 	static int begin(uint8_t *mac, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
-	static int maintain();
+	static uint8_t maintain();
 	static EthernetLinkStatus linkStatus();
 	static EthernetHardwareStatus hardwareStatus();
 
@@ -298,7 +298,7 @@ private:
 	uint8_t _dhcp_state;
 	EthernetUDP _dhcpUdpSocket;
 
-	int request_DHCP_lease();
+	uint8_t request_DHCP_lease();
 	void reset_DHCP_lease();
 	void presend_DHCP();
 	void send_DHCP_MESSAGE(uint8_t, uint16_t);
@@ -312,8 +312,8 @@ public:
 	IPAddress getDhcpServerIp();
 	IPAddress getDnsServerIp();
 
-	int beginWithDHCP(uint8_t *, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
-	int checkLease();
+	uint8_t beginWithDHCP(uint8_t *, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
+	uint8_t checkLease();
 };
 
 
