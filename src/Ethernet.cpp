@@ -111,6 +111,7 @@ EthernetHardwareStatus EthernetClass::hardwareStatus()
 		case 51: return EthernetW5100;
 		case 52: return EthernetW5200;
 		case 55: return EthernetW5500;
+		case 61: return EthernetW6100;
 		default: return EthernetNoHardware;
 	}
 }
