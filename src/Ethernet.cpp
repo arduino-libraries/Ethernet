@@ -115,9 +115,9 @@ EthernetHardwareStatus EthernetClass::hardwareStatus()
 	}
 }
 
-int EthernetClass::maintain()
+uint8_t EthernetClass::maintain()
 {
-	int rc = DHCP_CHECK_NONE;
+	uint8_t rc = DHCP_CHECK_NONE;
 	if (_dhcp != NULL) {
 		// we have a pointer to dhcp, use it
 		rc = _dhcp->checkLease();
