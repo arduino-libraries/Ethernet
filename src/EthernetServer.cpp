@@ -37,6 +37,43 @@ void EthernetServer::begin()
 	}
 }
 
+void EthernetServer::begin(uint16_t port)
+{
+	end();
+	_port = port;
+	begin();
+}
+
+void EthernetServer::end(uint16_t timeout)
+{
+	for (uint8_t i=0; i < MAX_SOCK_NUM; i++) {
+		if (server_port[i] == _port) {
+			Ethernet.socketDisconnect(i);
+		}
+	}
+	unsigned long start = millis();
+	bool allClosed = false;
+	while (!allClosed && millis() - start < timeout) {
+		allClosed = true;
+		for (uint8_t i=0; i < MAX_SOCK_NUM; i++) {
+			if (server_port[i] == _port) {
+				if (Ethernet.socketStatus(i) == SnSR::CLOSED) {
+					server_port[i] = 0;
+				} else {
+  				allClosed = false;
+				}
+			}
+		}
+		delay(1);
+	}
+	for (uint8_t i=0; i < MAX_SOCK_NUM; i++) {
+		if (server_port[i] == _port) {
+			Ethernet.socketClose(i);
+			server_port[i] = 0;
+		}
+	}
+}
+
 EthernetClient EthernetServer::available()
 {
 	bool listening = false;
