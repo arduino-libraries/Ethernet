@@ -75,6 +75,7 @@ class EthernetClass {
 private:
 	static IPAddress _dnsServerAddress;
 	static DhcpClass* _dhcp;
+	static char _hostname[32];
 public:
 	// Initialise the Ethernet shield to use the provided MAC address and
 	// gain the rest of the configuration through DHCP.
@@ -97,6 +98,7 @@ public:
 	static IPAddress gatewayIP();
 	static IPAddress dnsServerIP() { return _dnsServerAddress; }
 
+	void setHostname(const char* hostname);
 	void setMACAddress(const uint8_t *mac_address);
 	void setLocalIP(const IPAddress local_ip);
 	void setSubnetMask(const IPAddress subnet);
@@ -297,6 +299,7 @@ private:
 	unsigned long _lastCheckLeaseMillis;
 	uint8_t _dhcp_state;
 	EthernetUDP _dhcpUdpSocket;
+	const char *_dhcpHostname = NULL;
 
 	int request_DHCP_lease();
 	void reset_DHCP_lease();
@@ -311,6 +314,7 @@ public:
 	IPAddress getGatewayIp();
 	IPAddress getDhcpServerIp();
 	IPAddress getDnsServerIp();
+	void setCustomHostname(const char* name);
 
 	int beginWithDHCP(uint8_t *, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
 	int checkLease();
