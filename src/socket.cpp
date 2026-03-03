@@ -513,10 +513,11 @@ bool EthernetClass::socketSendUDP(uint8_t s)
 {
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	W5100.execCmdSn(s, Sock_SEND);
-
+	uint32_t startWait = millis();
+	
 	/* +2008.01 bj */
 	while ( (W5100.readSnIR(s) & SnIR::SEND_OK) != SnIR::SEND_OK ) {
-		if (W5100.readSnIR(s) & SnIR::TIMEOUT) {
+		if ((W5100.readSnIR(s) & SnIR::TIMEOUT) || ((millis() - startWait) > 1000)) {
 			/* +2008.01 [bj]: clear interrupt */
 			W5100.writeSnIR(s, (SnIR::SEND_OK|SnIR::TIMEOUT));
 			SPI.endTransaction();
