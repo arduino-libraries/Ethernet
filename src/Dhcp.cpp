@@ -51,6 +51,7 @@ int DhcpClass::request_DHCP_lease()
 	unsigned long startTime = millis();
 
 	while (_dhcp_state != STATE_DHCP_LEASED) {
+		yield();
 		if (_dhcp_state == STATE_DHCP_START) {
 			_dhcpTransactionId++;
 			send_DHCP_MESSAGE(DHCP_DISCOVER, ((millis() - startTime) / 1000));
@@ -245,6 +246,7 @@ uint8_t DhcpClass::parseDHCPResponse(unsigned long responseTimeout, uint32_t& tr
 			return 255;
 		}
 		delay(50);
+		yield();
 	}
 	// start reading in the packet
 	RIP_MSG_FIXED fixedMsg;
@@ -385,7 +387,7 @@ int DhcpClass::checkLease()
 	}
 
 	// if we have a lease or is renewing but should bind, do it
-	if (_rebindInSec == 0 && (_dhcp_state == STATE_DHCP_LEASED ||
+	else if (_rebindInSec == 0 && (_dhcp_state == STATE_DHCP_LEASED ||
 	  _dhcp_state == STATE_DHCP_START)) {
 		// this should basically restart completely
 		_dhcp_state = STATE_DHCP_START;
