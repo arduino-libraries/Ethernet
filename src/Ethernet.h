@@ -33,7 +33,9 @@
 // up to 4 sockets.  W5200 & W5500 can have up to 8 sockets.  Several bytes
 // of RAM are used for each socket.  Reducing the maximum can save RAM, but
 // you are limited to fewer simultaneous connections.
-#if defined(RAMEND) && defined(RAMSTART) && ((RAMEND - RAMSTART) <= 2048)
+#if defined(ETHERNET_MAX_SOCK_NUM)
+#define MAX_SOCK_NUM ETHERNET_MAX_SOCK_NUM
+#elif defined(RAMEND) && defined(RAMSTART) && ((RAMEND - RAMSTART) <= 2048)
 #define MAX_SOCK_NUM 4
 #else
 #define MAX_SOCK_NUM 8
