@@ -473,6 +473,83 @@ void setup() {
 void loop () {}
 ```
 
+### `Ethernet.setHostName()`
+
+#### Description
+
+Set the hostname of the device. This is used in DHCP requests and responses.
+
+
+#### Syntax
+
+```
+Ethernet.setHostName(hostName)
+
+```
+
+#### Parameters
+- hostName: the hostname of the device (const char*)
+
+#### Returns
+Nothing
+
+#### Example
+
+```
+#include <SPI.h>
+#include <Ethernet.h>
+
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+char hostName[] = "NameOfTheDevice";
+
+void setup() {
+  Ethernet.setHostName(hostName);
+  Ethernet.begin(mac);
+}
+
+void loop () {}
+```
+
+### `Ethernet.getHostName()`
+
+#### Description
+
+Get the hostname of the device. This is used in DHCP requests and responses.
+
+
+#### Syntax
+
+```
+Ethernet.getHostName()
+
+```
+
+#### Parameters
+none
+
+#### Returns
+- hostName: the hostname of the device (const char*)
+
+#### Example
+
+```
+#include <SPI.h>
+#include <Ethernet.h>
+
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+
+void setup() {
+  Ethernet.begin(mac);
+  const char* hostName = Ethernet.getHostName();
+
+  Serial.begin(9600);
+  Serial.print("Host name: ");
+  Serial.println(hostName);
+}
+
+void loop () {}
+```
+
 ### `Ethernet.setGatewayIP()`
 
 #### Description
