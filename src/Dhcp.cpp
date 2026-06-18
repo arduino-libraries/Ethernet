@@ -5,6 +5,7 @@
 #include "Ethernet.h"
 #include "Dhcp.h"
 #include "utility/w5100.h"
+extern 	void ethernetIdle(void);
 
 int DhcpClass::beginWithDHCP(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
 {
@@ -244,7 +245,8 @@ uint8_t DhcpClass::parseDHCPResponse(unsigned long responseTimeout, uint32_t& tr
 		if ((millis() - startTime) > responseTimeout) {
 			return 255;
 		}
-		delay(50);
+		ethernetIdle();
+		delay(1);
 	}
 	// start reading in the packet
 	RIP_MSG_FIXED fixedMsg;
