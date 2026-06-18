@@ -65,6 +65,9 @@ W5100Class W5100;
   uint8_t W5100Class::ss_pin_mask;
 #elif defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__) || defined(__MK64FX512__)
   volatile uint8_t * W5100Class::ss_pin_reg;
+#elif defined(__IMXRT1062__)
+  volatile uint32_t * W5100Class::ss_pin_reg;
+  uint32_t W5100Class::ss_pin_mask;
 #elif defined(__MKL26Z64__)
   volatile uint8_t * W5100Class::ss_pin_reg;
   uint8_t W5100Class::ss_pin_mask;

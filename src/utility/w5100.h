@@ -360,6 +360,20 @@ private:
 	inline static void resetSS() {
 		*(ss_pin_reg+128) = 1;
 	}
+#elif defined(__IMXRT1062__)
+	static volatile uint32_t *ss_pin_reg;
+	static uint32_t ss_pin_mask;
+	inline static void initSS() {
+		ss_pin_reg = portOutputRegister(digitalPinToPort(ss_pin));
+		ss_pin_mask = digitalPinToBitMask(ss_pin);
+		pinMode(ss_pin, OUTPUT);
+	}
+	inline static void setSS() {
+		*(ss_pin_reg+34) = ss_pin_mask;
+	}
+	inline static void resetSS() {
+		*(ss_pin_reg+33) = ss_pin_mask;
+	}
 #elif defined(__MKL26Z64__)
 	static volatile uint8_t *ss_pin_reg;
 	static uint8_t ss_pin_mask;
