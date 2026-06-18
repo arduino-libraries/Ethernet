@@ -188,6 +188,8 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 
 	// OPT - host name
 	buffer[16] = hostName;
+
+	if (_hostname == nullptr) {
 	buffer[17] = strlen(HOST_NAME) + 6; // length of hostname + last 3 bytes of mac address
 	strcpy((char*)&(buffer[18]), HOST_NAME);
 
@@ -197,6 +199,12 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
 
 	//put data in W5100 transmit buffer
 	_dhcpUdpSocket.write(buffer, 30);
+	} else {
+		uint8_t len = strlen(_hostname);
+		buffer[17] = len;
+		_dhcpUdpSocket.write(buffer, 18);
+		_dhcpUdpSocket.write(_hostname, len);
+	}
 
 	if (messageType == DHCP_REQUEST) {
 		buffer[0] = dhcpRequestedIPaddr;
@@ -418,6 +426,11 @@ IPAddress DhcpClass::getDhcpServerIp()
 IPAddress DhcpClass::getDnsServerIp()
 {
 	return IPAddress(_dhcpDnsServerIp);
+}
+
+void DhcpClass::setHostname(const char* hostname)
+{
+	_hostname = hostname;
 }
 
 void DhcpClass::printByte(char * buf, uint8_t n )
