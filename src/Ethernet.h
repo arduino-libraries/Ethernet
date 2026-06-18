@@ -28,6 +28,11 @@
 // these "friend" classes are now defined in the same header file.  socket.h
 // was removed to avoid possible conflict with the C library header files.
 
+#include <Arduino.h>
+#include "Client.h"
+#include "Server.h"
+#include "Udp.h"
+
 
 // Configure the maximum number of sockets to support.  W5100 chips can have
 // up to 4 sockets.  W5200 & W5500 can have up to 8 sockets.  Several bytes
@@ -47,11 +52,6 @@
 // does not always seem to work in practice (maybe WIZnet bugs?)
 //#define ETHERNET_LARGE_BUFFERS
 
-
-#include <Arduino.h>
-#include "Client.h"
-#include "Server.h"
-#include "Udp.h"
 
 enum EthernetLinkStatus {
 	Unknown,
