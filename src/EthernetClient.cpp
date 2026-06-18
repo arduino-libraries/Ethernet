@@ -60,7 +60,7 @@ int EthernetClient::connect(IPAddress ip, uint16_t port)
 		uint8_t stat = Ethernet.socketStatus(_sockindex);
 		if (stat == SnSR::ESTABLISHED) return 1;
 		if (stat == SnSR::CLOSE_WAIT) return 1;
-		if (stat == SnSR::CLOSED) return 0;
+		if (stat == SnSR::CLOSED) break;
 		if (millis() - start > _timeout) break;
 		delay(1);
 	}
