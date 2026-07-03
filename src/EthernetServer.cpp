@@ -22,6 +22,12 @@
 #include "Ethernet.h"
 #include "utility/w5100.h"
 
+
+#define WIZNET_CHIP_LIMIT(chip, maxindex) \
+    if (MAX_SOCK_NUM > 4) { \
+        if (chip == 51) maxindex = 4; \
+    }
+
 uint16_t EthernetServer::server_port[MAX_SOCK_NUM];
 
 
@@ -32,7 +38,7 @@ void EthernetServer::begin()
 		if (Ethernet.socketListen(sockindex)) {
 			server_port[sockindex] = _port;
 		} else {
-			Ethernet.socketDisconnect(sockindex);
+			Ethernet.socketClose(sockindex);
 		}
 	}
 }
@@ -41,34 +47,40 @@ EthernetClient EthernetServer::available()
 {
 	bool listening = false;
 	uint8_t sockindex = MAX_SOCK_NUM;
-	uint8_t chip, maxindex=MAX_SOCK_NUM;
+	uint8_t chip, maxindex = MAX_SOCK_NUM;
 
 	chip = W5100.getChip();
 	if (!chip) return EthernetClient(MAX_SOCK_NUM);
-#if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
-#endif
-	for (uint8_t i=0; i < maxindex; i++) {
+
+	WIZNET_CHIP_LIMIT(chip, maxindex);
+
+	// Step 1: Perform Socket Cleanup (externalized to a new function)
+	_socketCleanup(); // New call to a function that handles CLOSE_WAIT and CLOSED cleanup
+
+	// Step 2: Iterate through sockets to find data or verify listening
+	for (uint8_t i = 0; i < maxindex; i++) {
 		if (server_port[i] == _port) {
 			uint8_t stat = Ethernet.socketStatus(i);
+
+			// Check 1: Find a socket with data ready to be read
 			if (stat == SnSR::ESTABLISHED || stat == SnSR::CLOSE_WAIT) {
 				if (Ethernet.socketRecvAvailable(i) > 0) {
 					sockindex = i;
-				} else {
-					// remote host closed connection, our end still open
-					if (stat == SnSR::CLOSE_WAIT) {
-						Ethernet.socketDisconnect(i);
-						// status becomes LAST_ACK for short time
-					}
+					break; // Found a client with data, stop searching
 				}
-			} else if (stat == SnSR::LISTEN) {
+			}
+
+			// Check 2: Verify the primary socket is still listening
+			else if (stat == SnSR::LISTEN) {
 				listening = true;
-			} else if (stat == SnSR::CLOSED) {
-				server_port[i] = 0;
 			}
 		}
 	}
+
+	// Step 3: Restart the server if the primary socket is not listening
 	if (!listening) begin();
+
+	// Step 4: Return the client with available data (or an invalid client if none found)
 	return EthernetClient(sockindex);
 }
 
@@ -80,9 +92,9 @@ EthernetClient EthernetServer::accept()
 
 	chip = W5100.getChip();
 	if (!chip) return EthernetClient(MAX_SOCK_NUM);
-#if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
-#endif
+
+	WIZNET_CHIP_LIMIT(chip, maxindex);
+
 	for (uint8_t i=0; i < maxindex; i++) {
 		if (server_port[i] == _port) {
 			uint8_t stat = Ethernet.socketStatus(i);
@@ -107,9 +119,9 @@ EthernetClient EthernetServer::accept()
 EthernetServer::operator bool()
 {
 	uint8_t maxindex=MAX_SOCK_NUM;
-#if MAX_SOCK_NUM > 4
-	if (W5100.getChip() == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
-#endif
+	uint8_t chip = W5100.getChip();
+	WIZNET_CHIP_LIMIT(chip, maxindex);
+
 	for (uint8_t i=0; i < maxindex; i++) {
 		if (server_port[i] == _port) {
 			if (Ethernet.socketStatus(i) == SnSR::LISTEN) {
@@ -161,19 +173,48 @@ size_t EthernetServer::write(uint8_t b)
 size_t EthernetServer::write(const uint8_t *buffer, size_t size)
 {
 	uint8_t chip, maxindex=MAX_SOCK_NUM;
+	size_t sent_data = 0;
 
 	chip = W5100.getChip();
 	if (!chip) return 0;
-#if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
-#endif
-	available();
+
+	WIZNET_CHIP_LIMIT(chip, maxindex);
+
+	_socketCleanup();
+
 	for (uint8_t i=0; i < maxindex; i++) {
 		if (server_port[i] == _port) {
 			if (Ethernet.socketStatus(i) == SnSR::ESTABLISHED) {
-				Ethernet.socketSend(i, buffer, size);
+				sent_data += Ethernet.socketSend(i, buffer, size);
 			}
 		}
 	}
-	return size;
+	return sent_data;
+}
+
+void EthernetServer::_socketCleanup()
+{
+	uint8_t chip, maxindex=MAX_SOCK_NUM;
+
+	chip = W5100.getChip();
+	if (!chip) return;
+
+	WIZNET_CHIP_LIMIT(chip, maxindex);
+
+	for (uint8_t i=0; i < maxindex; i++) {
+		if (server_port[i] == _port) {
+			uint8_t stat = Ethernet.socketStatus(i);
+
+			// Check for client-initiated closure (CLOSE_WAIT)
+			if (stat == SnSR::CLOSE_WAIT) {
+				// Remote host closed connection, our end still open
+				Ethernet.socketDisconnect(i);
+				server_port[i] = 0;
+			}
+			// Cleanup closed sockets, including the primary LISTEN socket if failed
+			else if (stat == SnSR::CLOSED) {
+				server_port[i] = 0;
+			}
+		}
+	}
 }

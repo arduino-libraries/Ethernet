@@ -254,6 +254,7 @@ private:
 class EthernetServer : public Server {
 private:
 	uint16_t _port;
+	void _socketCleanup();
 public:
 	EthernetServer(uint16_t port) : _port(port) { }
 	EthernetClient available();
