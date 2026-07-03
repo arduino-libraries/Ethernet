@@ -135,6 +135,14 @@ int EthernetClass::maintain()
 			SPI.endTransaction();
 			_dnsServerAddress = _dhcp->getDnsServerIp();
 			break;
+		case DHCP_CHECK_RENEW_FAIL:
+		case DHCP_CHECK_REBIND_FAIL:
+			// Lease renewal failed; IP is no longer valid.
+			// Stop using the IP address to avoid conflicts.
+			SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+			W5100.setIPAddress(IPAddress(0,0,0,0).raw_address());
+			SPI.endTransaction();
+			break;
 		default:
 			//this is actually an error, it will retry though
 			break;
