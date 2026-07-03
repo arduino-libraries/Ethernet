@@ -28,8 +28,9 @@ DhcpClass* EthernetClass::_dhcp = NULL;
 
 int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
 {
-	static DhcpClass s_dhcp;
-	_dhcp = &s_dhcp;
+	if (_dhcp == NULL) {
+		_dhcp = new DhcpClass();
+	}
 
 	// Initialise the basic info
 	if (W5100.init() == 0) return 0;
@@ -176,6 +177,14 @@ IPAddress EthernetClass::gatewayIP()
 	W5100.getGatewayIp(ret.raw_address());
 	SPI.endTransaction();
 	return ret;
+}
+
+void EthernetClass::setHostname(const char* hostname)
+{
+	if (_dhcp == NULL) {
+		_dhcp = new DhcpClass();
+	}
+	_dhcp->setHostname(hostname);
 }
 
 void EthernetClass::setMACAddress(const uint8_t *mac_address)
