@@ -255,10 +255,13 @@ class EthernetServer : public Server {
 private:
 	uint16_t _port;
 public:
+	EthernetServer() : _port(80) { }
 	EthernetServer(uint16_t port) : _port(port) { }
 	EthernetClient available();
 	EthernetClient accept();
 	virtual void begin();
+	void begin(uint16_t port);
+	void end(uint16_t timeout = 5000);
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buf, size_t size);
 	virtual operator bool();
