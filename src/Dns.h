@@ -7,6 +7,9 @@
 
 #include "Ethernet.h"
 
+#define DNS_TIMEOUT 1000
+#define DNS_RETRIES 2
+
 class DNSClient
 {
 public:
@@ -26,7 +29,7 @@ public:
 	    @result 1 if aIPAddrString was successfully converted to an IP address,
 	            else error code
 	*/
-	int getHostByName(const char* aHostname, IPAddress& aResult, uint16_t timeout=5000);
+	int getHostByName(const char* aHostname, IPAddress& aResult, uint16_t timeout=DNS_TIMEOUT);
 
 protected:
 	uint16_t BuildRequest(const char* aName);

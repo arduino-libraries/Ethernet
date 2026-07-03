@@ -117,7 +117,7 @@ int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult, uint16_t
 					// Now wait for a response
 					int wait_retries = 0;
 					ret = TIMED_OUT;
-					while ((wait_retries < 3) && (ret == TIMED_OUT)) {
+					while ((wait_retries < DNS_RETRIES) && (ret == TIMED_OUT)) {
 						ret = ProcessResponse(timeout, aResult);
 						wait_retries++;
 					}
