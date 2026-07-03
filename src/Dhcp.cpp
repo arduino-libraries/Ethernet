@@ -422,12 +422,9 @@ IPAddress DhcpClass::getDnsServerIp()
 
 void DhcpClass::printByte(char * buf, uint8_t n )
 {
-	char *str = &buf[1];
-	buf[0]='0';
-	do {
-		unsigned long m = n;
-		n /= 16;
-		char c = m - 16 * n;
-		*str-- = c < 10 ? c + '0' : c + 'A' - 10;
-	} while(n);
+	uint8_t high_nibble = (n >> 4) & 0x0F;
+	uint8_t low_nibble = n & 0x0F;
+
+	buf[0] = high_nibble < 10 ? high_nibble + '0' : high_nibble + 'A' - 10;
+	buf[1] = low_nibble < 10 ? low_nibble + '0' : low_nibble + 'A' - 10;
 }
