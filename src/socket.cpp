@@ -68,7 +68,7 @@ uint8_t EthernetClass::socketBegin(uint8_t protocol, uint16_t port)
 	chip = W5100.getChip();
 	if (!chip) return MAX_SOCK_NUM; // immediate error if no hardware detected
 #if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
+	if (chip == 51 || chip == 50) maxindex = 4; // W5100 chip never supports more than 4 sockets
 #endif
 	//Serial.printf("W5000socket begin, protocol=%d, port=%d\n", protocol, port);
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
@@ -132,7 +132,7 @@ uint8_t EthernetClass::socketBeginMulticast(uint8_t protocol, IPAddress ip, uint
 	chip = W5100.getChip();
 	if (!chip) return MAX_SOCK_NUM; // immediate error if no hardware detected
 #if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
+	if (chip == 51 || chip == 50) maxindex = 4; // W5100 chip never supports more than 4 sockets
 #endif
 	//Serial.printf("W5000socket begin, protocol=%d, port=%d\n", protocol, port);
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
