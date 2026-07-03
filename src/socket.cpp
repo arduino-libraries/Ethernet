@@ -28,6 +28,13 @@ extern void yield(void);
 #define yield()
 #endif
 
+// Define WIZNET_CHIP_LIMIT (W5100/W5200 limit to 4 sockets if MAX_SOCK_NUM > 4)
+#if MAX_SOCK_NUM > 4
+#define WIZNET_CHIP_LIMIT(chip_type, max_index) ((chip_type == 51 || chip_type == 52) ? 4 : max_index)
+#else
+#define WIZNET_CHIP_LIMIT(chip_type, max_index) (max_index)
+#endif
+
 // TODO: randomize this when not using DHCP, but how?
 static uint16_t local_port = 49152;  // 49152 to 65535
 
@@ -47,6 +54,39 @@ static void write_data(uint8_t s, uint16_t offset, const uint8_t *data, uint16_t
 static void read_data(uint8_t s, uint16_t src, uint8_t *dst, uint16_t len);
 
 
+// --- Helper function for socket cleanup, extracted from socketBegin ---
+// Attempts to find an available socket index. Returns MAX_SOCK_NUM if none is found.
+// If a socket in a closing state is found, it is forcibly closed and its index is returned.
+static uint8_t findAvailableSocket(uint8_t max_index) {
+    uint8_t s, status;
+    uint8_t closing_socket = MAX_SOCK_NUM;
+
+    // 1. Look for a socket that is completely closed (unused)
+    for (s = 0; s < max_index; s++) {
+	status = W5100.readSnSR(s);
+	if (status == SnSR::CLOSED) {
+	    return s;
+	}
+    }
+
+    // 2. Look for a socket that is currently closing (forcibly close it)
+    for (s = 0; s < max_index; s++) {
+	status = W5100.readSnSR(s);
+	// Note: SnSR::CLOSE_WAIT is often left out here, but we check
+	// the other closing states that indicate the chip is waiting on remote.
+	if (status == SnSR::LAST_ACK || status == SnSR::TIME_WAIT ||
+	    status == SnSR::FIN_WAIT || status == SnSR::CLOSING) {
+
+	    W5100.execCmdSn(s, Sock_CLOSE);
+	    return s; // Use this index after closing
+	}
+    }
+
+    // 3. All sockets in use
+    return MAX_SOCK_NUM;
+}
+// -------------------------------------------------------------------
+
 
 /*****************************************/
 /*          Socket management            */
@@ -62,46 +102,27 @@ void EthernetClass::socketPortRand(uint16_t n)
 
 uint8_t EthernetClass::socketBegin(uint8_t protocol, uint16_t port)
 {
-	uint8_t s, status[MAX_SOCK_NUM], chip, maxindex=MAX_SOCK_NUM;
+	uint8_t s, chip, maxindex=MAX_SOCK_NUM;
 
 	// first check hardware compatibility
 	chip = W5100.getChip();
 	if (!chip) return MAX_SOCK_NUM; // immediate error if no hardware detected
-#if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
-#endif
+
+	// Use the abstraction macro
+	maxindex = WIZNET_CHIP_LIMIT(chip, MAX_SOCK_NUM);
+
 	//Serial.printf("W5000socket begin, protocol=%d, port=%d\n", protocol, port);
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-	// look at all the hardware sockets, use any that are closed (unused)
-	for (s=0; s < maxindex; s++) {
-		status[s] = W5100.readSnSR(s);
-		if (status[s] == SnSR::CLOSED) goto makesocket;
+
+	// Use refactored helper function instead of goto
+	s = findAvailableSocket(maxindex);
+
+	if (s >= MAX_SOCK_NUM) {
+		SPI.endTransaction();
+		return MAX_SOCK_NUM; // all sockets are in use
 	}
-	//Serial.printf("W5000socket step2\n");
-	// as a last resort, forcibly close any already closing
-	for (s=0; s < maxindex; s++) {
-		uint8_t stat = status[s];
-		if (stat == SnSR::LAST_ACK) goto closemakesocket;
-		if (stat == SnSR::TIME_WAIT) goto closemakesocket;
-		if (stat == SnSR::FIN_WAIT) goto closemakesocket;
-		if (stat == SnSR::CLOSING) goto closemakesocket;
-	}
-#if 0
-	Serial.printf("W5000socket step3\n");
-	// next, use any that are effectively closed
-	for (s=0; s < MAX_SOCK_NUM; s++) {
-		uint8_t stat = status[s];
-		// TODO: this also needs to check if no more data
-		if (stat == SnSR::CLOSE_WAIT) goto closemakesocket;
-	}
-#endif
-	SPI.endTransaction();
-	return MAX_SOCK_NUM; // all sockets are in use
-closemakesocket:
-	//Serial.printf("W5000socket close\n");
-	W5100.execCmdSn(s, Sock_CLOSE);
-makesocket:
-	//Serial.printf("W5000socket %d\n", s);
+
+	// Setup Socket (formerly 'makesocket' and 'closemakesocket' labels)
 	EthernetServer::server_port[s] = 0;
 	delayMicroseconds(250); // TODO: is this needed??
 	W5100.writeSnMR(s, protocol);
@@ -126,46 +147,27 @@ makesocket:
 // multicast version to set fields before open  thd
 uint8_t EthernetClass::socketBeginMulticast(uint8_t protocol, IPAddress ip, uint16_t port)
 {
-	uint8_t s, status[MAX_SOCK_NUM], chip, maxindex=MAX_SOCK_NUM;
+	uint8_t s, chip, maxindex=MAX_SOCK_NUM;
 
 	// first check hardware compatibility
 	chip = W5100.getChip();
 	if (!chip) return MAX_SOCK_NUM; // immediate error if no hardware detected
-#if MAX_SOCK_NUM > 4
-	if (chip == 51) maxindex = 4; // W5100 chip never supports more than 4 sockets
-#endif
+
+	// Use the abstraction macro
+	maxindex = WIZNET_CHIP_LIMIT(chip, MAX_SOCK_NUM);
+
 	//Serial.printf("W5000socket begin, protocol=%d, port=%d\n", protocol, port);
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-	// look at all the hardware sockets, use any that are closed (unused)
-	for (s=0; s < maxindex; s++) {
-		status[s] = W5100.readSnSR(s);
-		if (status[s] == SnSR::CLOSED) goto makesocket;
+
+	// Use refactored helper function instead of goto
+	s = findAvailableSocket(maxindex);
+
+	if (s >= MAX_SOCK_NUM) {
+		SPI.endTransaction();
+		return MAX_SOCK_NUM; // all sockets are in use
 	}
-	//Serial.printf("W5000socket step2\n");
-	// as a last resort, forcibly close any already closing
-	for (s=0; s < maxindex; s++) {
-		uint8_t stat = status[s];
-		if (stat == SnSR::LAST_ACK) goto closemakesocket;
-		if (stat == SnSR::TIME_WAIT) goto closemakesocket;
-		if (stat == SnSR::FIN_WAIT) goto closemakesocket;
-		if (stat == SnSR::CLOSING) goto closemakesocket;
-	}
-#if 0
-	Serial.printf("W5000socket step3\n");
-	// next, use any that are effectively closed
-	for (s=0; s < MAX_SOCK_NUM; s++) {
-		uint8_t stat = status[s];
-		// TODO: this also needs to check if no more data
-		if (stat == SnSR::CLOSE_WAIT) goto closemakesocket;
-	}
-#endif
-	SPI.endTransaction();
-	return MAX_SOCK_NUM; // all sockets are in use
-closemakesocket:
-	//Serial.printf("W5000socket close\n");
-	W5100.execCmdSn(s, Sock_CLOSE);
-makesocket:
-	//Serial.printf("W5000socket %d\n", s);
+
+	// Setup Socket (formerly 'makesocket' and 'closemakesocket' labels)
 	EthernetServer::server_port[s] = 0;
 	delayMicroseconds(250); // TODO: is this needed??
 	W5100.writeSnMR(s, protocol);
@@ -178,13 +180,13 @@ makesocket:
 		W5100.writeSnPORT(s, local_port);
 	}
 	// Calculate MAC address from Multicast IP Address
-    	byte mac[] = {  0x01, 0x00, 0x5E, 0x00, 0x00, 0x00 };
-    	mac[3] = ip[1] & 0x7F;
-    	mac[4] = ip[2];
-    	mac[5] = ip[3];
-    	W5100.writeSnDIPR(s, ip.raw_address());   //239.255.0.1
-    	W5100.writeSnDPORT(s, port);
-    	W5100.writeSnDHAR(s, mac);
+	byte mac[] = {  0x01, 0x00, 0x5E, 0x00, 0x00, 0x00 };
+	mac[3] = ip[1] & 0x7F;
+	mac[4] = ip[2];
+	mac[5] = ip[3];
+	W5100.writeSnDIPR(s, ip.raw_address());   //239.255.0.1
+	W5100.writeSnDPORT(s, port);
+	W5100.writeSnDHAR(s, mac);
 	W5100.execCmdSn(s, Sock_OPEN);
 	state[s].RX_RSR = 0;
 	state[s].RX_RD  = W5100.readSnRX_RD(s); // always zero?
@@ -194,6 +196,7 @@ makesocket:
 	SPI.endTransaction();
 	return s;
 }
+
 // Return the socket's status
 //
 uint8_t EthernetClass::socketStatus(uint8_t s)
@@ -263,16 +266,16 @@ void EthernetClass::socketDisconnect(uint8_t s)
 static uint16_t getSnRX_RSR(uint8_t s)
 {
 #if 1
-        uint16_t val, prev;
+	uint16_t val, prev;
 
-        prev = W5100.readSnRX_RSR(s);
-        while (1) {
-                val = W5100.readSnRX_RSR(s);
-                if (val == prev) {
+	prev = W5100.readSnRX_RSR(s);
+	while (1) {
+		val = W5100.readSnRX_RSR(s);
+		if (val == prev) {
 			return val;
 		}
-                prev = val;
-        }
+		prev = val;
+	}
 #else
 	uint16_t val = W5100.readSnRX_RSR(s);
 	return val;
@@ -316,7 +319,7 @@ int EthernetClass::socketRecv(uint8_t s, uint8_t *buf, int16_t len)
 		// No data available.
 		uint8_t status = W5100.readSnSR(s);
 		if ( status == SnSR::LISTEN || status == SnSR::CLOSED ||
-		  status == SnSR::CLOSE_WAIT ) {
+		    status == SnSR::CLOSE_WAIT ) {
 			// The remote end has closed its side of the connection,
 			// so this is the eof state
 			ret = 0;
@@ -381,17 +384,17 @@ uint8_t EthernetClass::socketPeek(uint8_t s)
 
 static uint16_t getSnTX_FSR(uint8_t s)
 {
-        uint16_t val, prev;
+	uint16_t val, prev;
 
-        prev = W5100.readSnTX_FSR(s);
-        while (1) {
-                val = W5100.readSnTX_FSR(s);
-                if (val == prev) {
+	prev = W5100.readSnTX_FSR(s);
+	while (1) {
+		val = W5100.readSnTX_FSR(s);
+		if (val == prev) {
 			state[s].TX_FSR = val;
 			return val;
 		}
-                prev = val;
-        }
+		prev = val;
+	}
 }
 
 
@@ -416,9 +419,12 @@ static void write_data(uint8_t s, uint16_t data_offset, const uint8_t *data, uin
 
 
 /**
- * @brief	This function used to send the data in TCP mode
- * @return	1 for success else 0.
- */
+ * @brief  Send data on the socket
+ * @param  s	Socket number
+ * @param  buf	Pointer to data buffer
+ * @param  len	Length of data to be sent
+ * @return	The sent data size in bytes.
+   */
 uint16_t EthernetClass::socketSend(uint8_t s, const uint8_t * buf, uint16_t len)
 {
 	uint8_t status=0;
@@ -499,7 +505,7 @@ uint16_t EthernetClass::socketBufferData(uint8_t s, uint16_t offset, const uint8
 bool EthernetClass::socketStartUDP(uint8_t s, uint8_t* addr, uint16_t port)
 {
 	if ( ((addr[0] == 0x00) && (addr[1] == 0x00) && (addr[2] == 0x00) && (addr[3] == 0x00)) ||
-	  ((port == 0x00)) ) {
+	    ((port == 0x00)) ) {
 		return false;
 	}
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
