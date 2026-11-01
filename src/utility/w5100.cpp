@@ -18,13 +18,13 @@
 /***************************************************/
 
 // If variant.h or other headers specifically define the
-// default SS pin for ethernet, use it.
+// default SS pin for Ethernet, use it.
 #if defined(PIN_SPI_SS_ETHERNET_LIB)
 #define SS_PIN_DEFAULT  PIN_SPI_SS_ETHERNET_LIB
 
 // MKR boards default to pin 5 for MKR ETH
 // Pins 8-10 are MOSI/SCK/MISO on MRK, so don't use pin 10
-#elif defined(USE_ARDUINO_MKR_PIN_LAYOUT) || defined(ARDUINO_SAMD_MKRZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_MKRFox1200) || defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWAN1300)
+#elif defined(USE_ARDUINO_MKR_PIN_LAYOUT) || defined(ARDUINO_SAMD_MKRZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_MKRFox1200) || defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRVIDOR4000)
 #define SS_PIN_DEFAULT  5
 
 // For boards using AVR, assume shields with SS on pin 10
@@ -132,7 +132,7 @@ uint8_t W5100Class::init(void)
 			writeSnRX_SIZE(i, 0);
 			writeSnTX_SIZE(i, 0);
 		}
-	// Try W5500 next.  Wiznet finally seems to have implemented
+	// Try W5500 next.  WIZnet finally seems to have implemented
 	// SPI well with this chip.  It appears to be very resilient,
 	// so try it after the fragile W5200
 	} else if (isW5500()) {
@@ -197,12 +197,12 @@ uint8_t W5100Class::init(void)
 	return 1; // successful init
 }
 
-// Soft reset the Wiznet chip, by writing to its MR register reset bit
+// Soft reset the WIZnet chip, by writing to its MR register reset bit
 uint8_t W5100Class::softReset(void)
 {
 	uint16_t count=0;
 
-	//Serial.println("Wiznet soft reset");
+	//Serial.println("WIZnet soft reset");
 	// write to reset bit
 	writeMR(0x80);
 	// then wait for soft reset to complete

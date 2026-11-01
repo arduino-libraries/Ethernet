@@ -1,8 +1,8 @@
 /*
-  Web client
+ Web client
 
  This sketch connects to a website (http://www.google.com)
- using an Arduino Wiznet Ethernet shield.
+ using an Arduino WIZnet Ethernet shield.
 
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13
@@ -43,11 +43,11 @@ bool printWebData = true;  // set to false for better speed measurement
 void setup() {
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
-  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(5);   // MKR ETH Shield
   //Ethernet.init(0);   // Teensy 2.0
   //Ethernet.init(20);  // Teensy++ 2.0
-  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
-  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+  //Ethernet.init(15);  // ESP8266 with Adafruit FeatherWing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit FeatherWing Ethernet
 
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
@@ -69,7 +69,7 @@ void setup() {
     if (Ethernet.linkStatus() == LinkOFF) {
       Serial.println("Ethernet cable is not connected.");
     }
-    // try to congifure using IP address instead of DHCP:
+    // try to configure using IP address instead of DHCP:
     Ethernet.begin(mac, ip, myDns);
   } else {
     Serial.print("  DHCP assigned IP ");
@@ -134,4 +134,3 @@ void loop() {
     }
   }
 }
-

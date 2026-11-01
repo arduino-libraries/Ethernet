@@ -1,10 +1,10 @@
 /*
-  Repeating Web client
+ Repeating Web client
 
- This sketch connects to a a web server and makes a request
- using a Wiznet Ethernet shield. You can use the Arduino Ethernet shield, or
+ This sketch connects to a web server and makes a request
+ using a WIZnet Ethernet shield. You can use the Arduino Ethernet Shield, or
  the Adafruit Ethernet shield, either one will work, as long as it's got
- a Wiznet Ethernet module on board.
+ a WIZnet Ethernet module on board.
 
  This example uses DNS, by assigning the Ethernet client with a MAC address,
  IP address, and DNS address.
@@ -17,7 +17,7 @@
  modified 21 Jan 2014
  by Federico Vanzati
 
- http://www.arduino.cc/en/Tutorial/WebClientRepeating
+ https://www.arduino.cc/en/Tutorial/WebClientRepeating
  This code is in the public domain.
 
  */
@@ -25,7 +25,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
-// assign a MAC address for the ethernet controller.
+// assign a MAC address for the Ethernet controller.
 // fill in your address here:
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
@@ -46,11 +46,11 @@ const unsigned long postingInterval = 10*1000;  // delay between updates, in mil
 void setup() {
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
-  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(5);   // MKR ETH Shield
   //Ethernet.init(0);   // Teensy 2.0
   //Ethernet.init(20);  // Teensy++ 2.0
-  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
-  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+  //Ethernet.init(15);  // ESP8266 with Adafruit FeatherWing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit FeatherWing Ethernet
 
   // start serial port:
   Serial.begin(9600);
@@ -72,7 +72,7 @@ void setup() {
     if (Ethernet.linkStatus() == LinkOFF) {
       Serial.println("Ethernet cable is not connected.");
     }
-    // try to congifure using IP address instead of DHCP:
+    // try to configure using IP address instead of DHCP:
     Ethernet.begin(mac, ip, myDns);
     Serial.print("My IP address: ");
     Serial.println(Ethernet.localIP());
@@ -104,7 +104,7 @@ void loop() {
 // this method makes a HTTP connection to the server:
 void httpRequest() {
   // close any connection before send a new request.
-  // This will free the socket on the WiFi shield
+  // This will free the socket on the Ethernet shield
   client.stop();
 
   // if there's a successful connection:
@@ -124,7 +124,3 @@ void httpRequest() {
     Serial.println("connection failed");
   }
 }
-
-
-
-

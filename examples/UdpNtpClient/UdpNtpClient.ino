@@ -1,11 +1,10 @@
 /*
-
  Udp NTP Client
 
  Get the time from a Network Time Protocol (NTP) time server
  Demonstrates use of UDP sendPacket and ReceivePacket
  For more on NTP time servers and the messages needed to communicate with them,
- see http://en.wikipedia.org/wiki/Network_Time_Protocol
+ see https://en.wikipedia.org/wiki/Network_Time_Protocol
 
  created 4 Sep 2010
  by Michael Margolis
@@ -42,11 +41,11 @@ EthernetUDP Udp;
 void setup() {
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
-  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(5);   // MKR ETH Shield
   //Ethernet.init(0);   // Teensy 2.0
   //Ethernet.init(20);  // Teensy++ 2.0
-  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
-  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+  //Ethernet.init(15);  // ESP8266 with Adafruit FeatherWing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit FeatherWing Ethernet
 
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
@@ -144,13 +143,3 @@ void sendNTPpacket(const char * address) {
   Udp.write(packetBuffer, NTP_PACKET_SIZE);
   Udp.endPacket();
 }
-
-
-
-
-
-
-
-
-
-

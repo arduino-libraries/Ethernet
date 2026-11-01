@@ -1,10 +1,11 @@
 /*
- UDPSendReceiveString:
+ UDPSendReceiveString
+
  This sketch receives UDP message strings, prints them to the serial port
  and sends an "acknowledge" string back to the sender
 
  A Processing sketch is included at the end of file that can be used to send
- and received messages for testing with a computer.
+ and receive messages for testing with a computer.
 
  created 21 Aug 2010
  by Michael Margolis
@@ -35,11 +36,11 @@ EthernetUDP Udp;
 void setup() {
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
-  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(5);   // MKR ETH Shield
   //Ethernet.init(0);   // Teensy 2.0
   //Ethernet.init(20);  // Teensy++ 2.0
-  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
-  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+  //Ethernet.init(15);  // ESP8266 with Adafruit FeatherWing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit FeatherWing Ethernet
 
   // start the Ethernet
   Ethernet.begin(mac, ip);
@@ -82,7 +83,7 @@ void loop() {
     Serial.print(", port ");
     Serial.println(Udp.remotePort());
 
-    // read the packet into packetBufffer
+    // read the packet into packetBuffer
     Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
     Serial.println("Contents:");
     Serial.println(packetBuffer);
@@ -135,5 +136,3 @@ void loop() {
  println();
  }
  */
-
-

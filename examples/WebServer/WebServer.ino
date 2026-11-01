@@ -1,8 +1,8 @@
 /*
-  Web Server
+ Web Server
 
  A simple web server that shows the value of the analog input pins.
- using an Arduino Wiznet Ethernet shield.
+ using an Arduino WIZnet Ethernet shield.
 
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13
@@ -35,11 +35,11 @@ EthernetServer server(80);
 void setup() {
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
-  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(5);   // MKR ETH Shield
   //Ethernet.init(0);   // Teensy 2.0
   //Ethernet.init(20);  // Teensy++ 2.0
-  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
-  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+  //Ethernet.init(15);  // ESP8266 with Adafruit FeatherWing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit FeatherWing Ethernet
 
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
@@ -74,17 +74,17 @@ void loop() {
   EthernetClient client = server.available();
   if (client) {
     Serial.println("new client");
-    // an http request ends with a blank line
+    // an HTTP request ends with a blank line
     bool currentLineIsBlank = true;
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
         Serial.write(c);
         // if you've gotten to the end of the line (received a newline
-        // character) and the line is blank, the http request has ended,
+        // character) and the line is blank, the HTTP request has ended,
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
-          // send a standard http response header
+          // send a standard HTTP response header
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/html");
           client.println("Connection: close");  // the connection will be closed after completion of the response
@@ -120,4 +120,3 @@ void loop() {
     Serial.println("client disconnected");
   }
 }
-

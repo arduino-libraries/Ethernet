@@ -1,5 +1,5 @@
 /*
-  SCP1000 Barometric Pressure Sensor Display
+ SCP1000 Barometric Pressure Sensor Display
 
  Serves the output of a Barometric Pressure Sensor as a web page.
  Uses the SPI library. For details on the sensor, see:
@@ -60,11 +60,11 @@ long lastReadingTime = 0;
 void setup() {
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
-  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(5);   // MKR ETH Shield
   //Ethernet.init(0);   // Teensy 2.0
   //Ethernet.init(20);  // Teensy++ 2.0
-  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
-  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+  //Ethernet.init(15);  // ESP8266 with Adafruit FeatherWing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit FeatherWing Ethernet
 
   // start the SPI library:
   SPI.begin();
@@ -92,7 +92,7 @@ void setup() {
   // start listening for clients
   server.begin();
 
-  // initalize the data ready and chip select pins:
+  // initialize the data ready and chip select pins:
   pinMode(dataReadyPin, INPUT);
   pinMode(chipSelectPin, OUTPUT);
 
@@ -104,7 +104,7 @@ void setup() {
   // give the sensor and Ethernet shield time to set up:
   delay(1000);
 
-  //Set the sensor to high resolution mode tp start readings:
+  //Set the sensor to high resolution mode to start readings:
   writeRegister(0x03, 0x0A);
 
 }
@@ -131,7 +131,7 @@ void getData() {
   //Read the temperature data
   int tempData = readRegister(0x21, 2);
 
-  // convert the temperature to celsius and display it:
+  // convert the temperature to Celsius and display it:
   temperature = (float)tempData / 20.0;
 
   //Read the pressure data highest 3 bits:
@@ -155,16 +155,16 @@ void listenForEthernetClients() {
   EthernetClient client = server.available();
   if (client) {
     Serial.println("Got a client");
-    // an http request ends with a blank line
+    // an HTTP request ends with a blank line
     bool currentLineIsBlank = true;
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
         // if you've gotten to the end of the line (received a newline
-        // character) and the line is blank, the http request has ended,
+        // character) and the line is blank, the HTTP request has ended,
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
-          // send a standard http response header
+          // send a standard HTTP response header
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/html");
           client.println();
@@ -216,7 +216,7 @@ void writeRegister(byte registerName, byte registerValue) {
 
 //Read register from the SCP1000:
 unsigned int readRegister(byte registerName, int numBytes) {
-  byte inByte = 0;           // incoming from  the SPI read
+  byte inByte = 0;           // incoming from the SPI read
   unsigned int result = 0;   // result to return
 
   // SCP1000 expects the register name in the upper 6 bits

@@ -1,5 +1,5 @@
 /*
- *  Udp.cpp: Library to send/receive UDP packets with the Arduino ethernet shield.
+ *  Udp.cpp: Library to send/receive UDP packets with the Arduino Ethernet Shield.
  *  This version only offers minimal wrapping of socket.cpp
  *  Drop Udp.h/.cpp into the Ethernet library directory at hardware/libraries/Ethernet/
  *
